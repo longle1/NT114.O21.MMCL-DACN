@@ -1,0 +1,263 @@
+import React, { useEffect, useRef, useState } from 'react'
+import { SearchOutlined } from '@ant-design/icons';
+import { Button, Input, Space, Table, Popconfirm, Avatar, Popover, AutoComplete, Tag } from 'antd';
+import Highlighter from 'react-highlight-words';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { ListProjectAction } from '../../redux/actions/ListProjectAction';
+import { drawer_edit_form_action } from '../../redux/actions/DrawerAction';
+import FormEdit from '../Forms/FormEdit';
+import { deleteItemCategory, getItemCategory } from '../../redux/actions/EditCategoryAction';
+import { getUserKeyword, insertUserIntoProject } from '../../redux/actions/UserAction';
+import { NavLink } from 'react-router-dom';
+export default function ProjectManager() {
+    const dispatch = useDispatch()
+    const listProject = useSelector(state => state.listProject.listProject)
+    const listUser = useSelector(state => state.user.list)
+    useEffect(() => {
+        dispatch(ListProjectAction())
+    }, [])
+
+    const [value, setValue] = useState('')
+
+    //su dung cho debounce search
+    const search = useRef(null)
+
+
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef(null);
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            confirm({
+                                closeDropdown: false,
+                            });
+                            setSearchText(selectedKeys[0]);
+                            setSearchedColumn(dataIndex);
+                        }}
+                    >
+                        Filter
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            close();
+                        }}
+                    >
+                        close
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{
+                    color: filtered ? '#1677ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownOpenChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+    const columns = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Project Name',
+            dataIndex: 'projectName',
+            key: 'projectName',
+            render: (text, record, index) => {  
+                return <NavLink to={`/projectDetail/${record.id}`} style={{textDecoration: 'none'}}>
+                    <span>{record.projectName}</span>
+                </NavLink>
+            }
+        },
+        {
+            title: 'Category',
+            dataIndex: 'category',
+            key: 'category',
+            render: (text, record, index) => {
+                return <Tag key={index} color="magenta">{record.category.categoryName}</Tag>
+            }
+        },
+        {
+            title: 'Creator',
+            dataIndex: 'creatorId',
+            key: 'creatorId',
+            render: (text, record, index) => {
+                return <Tag key={index} color="green">{record.creator.userName}</Tag>
+            }
+        },
+        {
+            title: 'Members',
+            dataIndex: 'members',
+            key: 'members',
+            render: (text, record, index) => {
+                return <div>
+                    {record.members?.slice(0, 3).map((user, index) => {
+                        return <Popover content={() => {
+                            console.log("Hello world");
+                        }} title="Title">
+                            <Avatar key={index} src={<img src={user.avatar} alt="avatar" />} />
+                        </Popover>
+                    })}
+                    {record.members?.length >= 3 ? <Avatar>...</Avatar> : ''}
+                    <Popover placement="right" title="Add User" content={() => {
+                        return <AutoComplete
+                            style={{ width: '100%' }}
+                            onSearch={(value) => {
+                                //kiem tra gia tri co khac null khong, khac thi xoa
+                                if(search.current) {
+                                    clearTimeout(search.current)
+                                }
+                                search.current = setTimeout(() => {
+                                    dispatch(getUserKeyword(value))
+                                }, 500)
+                            }}
+                            value={value}
+                            onChange={(value) => {
+                                setValue(value)
+                            }}
+                            defaultValue=''
+                            options={listUser?.map((user, index) => {
+                                return { label: user.userName, value: user.userId.toString() }
+                            })}
+                            onSelect={(value, option) => {
+                                setValue(option.label)
+                                dispatch(insertUserIntoProject({
+                                    id: record.id,
+                                    userId: value
+                                }))
+                            }}
+                            placeholder="input here"
+                        />
+                    }} trigger="click">
+                        <Avatar style={{ backgroundColor: '#87d068' }}>
+                            <i className="fa fa-plus"></i>
+                        </Avatar>
+                    </Popover>
+                </div>
+            }
+        },
+        {
+            title: 'Action',
+            dataIndex: 'action',
+            key: 'categoryId',
+            render: (text, record, index) => (
+                <div>
+                    <Button className='mr-2 text-primary' type="default" icon={<EditOutlined />} size='large' onClick={() => {
+                        dispatch(drawer_edit_form_action(<FormEdit />))
+                        //gửi item hiện tại lên redux
+                        record.creator = 45
+                        dispatch(getItemCategory(record))
+                    }} />
+                    <Popconfirm
+                        title="Delete this task"
+                        description="Are you sure to delete this task?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => {
+                            dispatch(deleteItemCategory(record.id))
+                        }}
+                    >
+                        <Button className='mr-2' type="primary" icon={<DeleteOutlined />} size='large' />
+                    </Popconfirm>
+                </div>
+            ),
+        }
+    ];
+    return (
+        <>
+            <div className='container-fluid'>
+                <div className="header">
+                    <nav aria-label="breadcrumb">
+                        <ol className="breadcrumb" style={{ backgroundColor: 'white' }}>
+                            <li className="breadcrumb-item">Project</li>
+                            <li className="breadcrumb-item active" aria-current="page">
+                                Project management
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                <h3>Project management</h3>
+                <div className="content">
+                    <Table columns={columns} rowKey={"id"} dataSource={listProject} />
+                </div>
+            </div>
+        </>
+    )
+}
