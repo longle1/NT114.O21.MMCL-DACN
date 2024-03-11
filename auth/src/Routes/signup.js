@@ -20,15 +20,6 @@ router.post("/signup", async (req, res, next) => {
             }
             const user = await userModel.create(newUser)
             await user.save()
-
-            const userJwt = jwt.sign({
-                id: user.id,
-                email: user.email,
-            }, process.env.JWT_KEY)
-            //luu tru jwt trong cookie
-            req.session = {
-                jwt: userJwt
-            }
             res.status(201).json({
                 message: "Successfully created user",
                 statusCode: 201,
