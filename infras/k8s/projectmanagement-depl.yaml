@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: projectmanagement-depl
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: projectmanagement
+  template:
+    metadata:   
+      labels: 
+        app: projectmanagement
+    spec:
+      containers:
+        - name: projectmanagement
+          image: longle1/projectmanagement
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: projectmanagement-srv
+spec:
+  selector: 
+    app: projectmanagement
+  ports:
+    - name: projectmanagement
+      protocol: TCP
+      port: 4003
+      targetPort: 4003

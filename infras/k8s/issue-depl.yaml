@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: issue-depl
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: issue
+  template:
+    metadata:   
+      labels: 
+        app: issue
+    spec:
+      containers:
+        - name: issue
+          image: longle1/issue
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: issue-srv
+spec:
+  selector: 
+    app: issue
+  ports:
+    - name: issue
+      protocol: TCP
+      port: 4002
+      targetPort: 4002
