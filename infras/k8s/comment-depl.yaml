@@ -15,6 +15,12 @@ spec:
       containers:
         - name: comment
           image: longle1/comment
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt_key
 
 ---
 
