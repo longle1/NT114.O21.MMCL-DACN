@@ -12,7 +12,10 @@ const projectSchema = new mongoose.Schema({
             }
         }
     ],
-    category: String,
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'categories'
+    },
     projectStatus: [
         {
             issue: {

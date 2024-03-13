@@ -7,6 +7,10 @@ const app = express()
 app.use(bodyParser.json())
 app.use(cors())
 
+app.use('/api/category', require('./Routes/create'))
+app.use('/api/category', require('./Routes/delete'))
+app.use('/api/category', require('./Routes/getList'))
+
 async function connectToMongoDb() {
     try {
         await mongoose.connect("mongodb://category-mongo-srv:27017/db") 

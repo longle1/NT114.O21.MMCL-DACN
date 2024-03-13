@@ -1,10 +1,13 @@
 const express = require('express')
-const currentUserMiddleware = require('../../../Issue/src/Middlewares/currentUser-Middleware')
+const currentUserMiddleware = require('../Middlewares/currentUser-Middleware')
 
 const router = express.Router()
 
-router.post('/create', currentUserMiddleware, (req, res) => {
-    
+router.get('/create', currentUserMiddleware,async (req, res) => {
+    const { nameProject, description, category } = req.body;
+
+
+
 })
 
-module.export = router
+module.exports = router

@@ -61,7 +61,7 @@ function Create(props) {
                     <div className='form-group'>
                         <select name='categoryId' className='form-control' onChange={handleChange} >
                             {categoryList.map((value, index) => {
-                                return <option value={value.id} key={index}>{value.categoryName}</option>
+                                return <option value={value.id} key={index}>{value.name}</option>
                             })}
                         </select>
                     </div>

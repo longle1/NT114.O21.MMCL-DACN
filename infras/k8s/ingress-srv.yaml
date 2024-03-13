@@ -39,7 +39,7 @@ spec:
                 name: projectmanagement-srv
                 port:
                   number: 4003
-          - path: /?(.*)
+          - path: /api/category/?(.*)
             pathType: Prefix
             backend:
               service:
