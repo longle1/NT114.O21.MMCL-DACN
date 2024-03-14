@@ -12,7 +12,7 @@ const issueSchema = new mongoose.Schema({
     timeSpent: Number,
     timeRemaining: Number,
     timeOriginalEstimate: Number,
-    desciption: String,
+    description: String,
     shortSummary: String,
     positionList: Number,
     issueType: Number,

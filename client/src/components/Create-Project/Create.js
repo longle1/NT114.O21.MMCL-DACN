@@ -3,7 +3,6 @@ import { Editor } from '@tinymce/tinymce-react';
 import { withFormik } from 'formik';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { getListCategories } from '../../redux/actions/CategoryAction';
-import * as Yup from "yup";
 import { createProjectAction } from '../../redux/actions/CreateProjectAction';
 function Create(props) {
     const handlEditorChange = (content, editor) => {
@@ -59,9 +58,9 @@ function Create(props) {
                         />
                     </div>
                     <div className='form-group'>
-                        <select name='categoryId' className='form-control' onChange={handleChange} >
+                        <select name='category' className='form-control' onChange={handleChange} >
                             {categoryList.map((value, index) => {
-                                return <option value={value.id} key={index}>{value.name}</option>
+                                return <option value={value._id} key={index}>{value.name}</option>
                             })}
                         </select>
                     </div>
@@ -76,12 +75,13 @@ function Create(props) {
 const handleCreateProject = withFormik({
     enableReinitialize: true,
     mapPropsToValues: (props) => {
-        return { projectName: '', description: '', categoryId: props.categoryList[0]?.id }
+        return { projectName: '', description: '', category: props.categoryList[0]?.id }
     },
-    validationSchema: Yup.object().shape({
+    // validationSchema: Yup.object().shape({
 
-    }),
+    // }),
     handleSubmit: (values, { props, setSubmitting }) => {
+        console.log(values);
         props.dispatch(createProjectAction(values))
     },
 

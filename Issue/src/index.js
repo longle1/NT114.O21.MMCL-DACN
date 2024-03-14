@@ -4,6 +4,7 @@ const cors = require("cors")
 const mongoose = require("mongoose")
 const cookieSession = require("cookie-session")
 const errorHandler = require("./Middlewares/Error-handler")
+const natsWrapper = require("./nats-wrapper")
 
 const app = express()
 app.use(bodyParser.json())
@@ -15,6 +16,24 @@ app.use(cookieSession({
     signed: false,
     secure: true
 }))
+
+app.use('/api/issue', require('./Routes/create'))
+
+async function connectToNats() {
+    try {
+        await natsWrapper.connect('jiraproject', 'issue', 'http://nats-srv:4222')
+        natsWrapper.client.on('close', () => {
+            console.log('NATs connection closed');
+            process.exit()
+        })
+
+        process.on('SIGINT', () => { natsWrapper.client.close() })
+        process.on('SIGTERM', () => { natsWrapper.client.close() })
+        console.log("Ket noi thanh cong toi nats");
+    } catch (error) {
+        console.log("Kết nối thất bại tới nats", error);
+    }
+}
 
 
 async function connectToMongoDb() {
@@ -28,6 +47,7 @@ async function connectToMongoDb() {
 }
 
 connectToMongoDb()
+connectToNats()
 
 app.use(errorHandler)
 

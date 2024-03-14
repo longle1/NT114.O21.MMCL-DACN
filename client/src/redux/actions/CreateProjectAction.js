@@ -3,15 +3,12 @@ import Axios from "axios"
 export const createProjectAction = (data) => {
     return async dispatch => {
         try {
-            const res = await Axios.post("http://localhost:4000/api/create", { data })
+            console.log(data);
+            await Axios.post("https://jira.dev/api/projectmanagement/create", { data })
 
-            if (res.data.status) {
-                alert("successfully created")
-            } else {
-                alert("successfully failed")
-            }
+            alert("successfully created")
         }catch(errors) {
-            
+            alert("failed created")
         }
     }
 }

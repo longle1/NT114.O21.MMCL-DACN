@@ -16,10 +16,9 @@ const objects = [
 
 router.get('/create',async (req, res) => {
     for(const obj of objects) {
-        categoryModel.create({
+        await categoryModel.create({
             name: obj
         })
-        await category.save()
     }
     const listData = await categoryModel.find({})
     res.send({data: listData})
