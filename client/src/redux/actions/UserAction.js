@@ -6,14 +6,12 @@ import { showNotificationWithIcon } from "../../util/NotificationUtil"
 export const getUserKeyword = (keyword) => {
     return async dispatch => {
         try {
-            const res = await Axios.get(`http://localhost:4000/api/users/getUser?keyword=${keyword}`)
-
-            if (res.data.status) {
-                dispatch({
-                    type: GET_USER_BY_KEYWORD_API,
-                    list: res.data.data
-                })
-            }
+            const res = await Axios.get(`https://jira.dev/api/projectmanagement/listuser?keyword=${keyword}`)
+            console.log('data keyword', res);
+            dispatch({
+                type: GET_USER_BY_KEYWORD_API,
+                list: res.data.data
+            })
         } catch (error) {
 
         }
@@ -23,18 +21,14 @@ export const getUserKeyword = (keyword) => {
 export const insertUserIntoProject = (props) => {
     return async dispatch => {
         try {
-            const res = await Axios.post(`http://localhost:4000/api/users/insertUser`, { props })
+            console.log(props);
+            const res = await Axios.post(`https://jira.dev/api/projectmanagement/insert`, { props })
 
-            if (res.data.status) {
-                if (!res.data.exist) {
-                    dispatch(ListProjectAction(res.data.data))
-                    showNotificationWithIcon('success', 'Insert user', 'Successfully inserted in this project')
-                } else {
-                    showNotificationWithIcon('error', 'Insert user', 'User already in this project')
-                }
-            }
+            dispatch(ListProjectAction(res.data.data))
+                showNotificationWithIcon('success', 'Insert user', 'Successfully inserted in this project')
         } catch (error) {
-
+            showNotificationWithIcon('error', 'Insert user', 'User already in this project')
+            console.log(error);
         }
     }
 }
@@ -79,12 +73,11 @@ export const userLoginAction = (email, password) => {
             if (loggedIn) {
                 const res = await Axios.get('https://jira.dev/api/users/currentuser')
 
-                console.log(res);
-
                 if (res.data.currentUser) {
                     dispatch({
                         type: USER_LOGGED_IN,
-                        status: true
+                        status: true,
+                        userInfo: res.data.currentUser
                     })
                 }
             }
@@ -101,12 +94,15 @@ export const userLoggedInAction = () => {
         if (!res.data.currentUser) {
             dispatch({
                 type: USER_LOGGED_IN,
-                status: false
+                status: false,
+                userInfo: null
             })
         } else {
+            console.log(res.data.currentUser);
             dispatch({
                 type: USER_LOGGED_IN,
-                status: true
+                status: true,
+                userInfo: res.data.currentUser
             })
         }
     }

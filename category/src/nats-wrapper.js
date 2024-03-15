@@ -1,6 +1,8 @@
 const nats = require('node-nats-streaming')
+
 class NatsWrapper {
     _client;
+
     get client() {
         return this._client
     }
@@ -22,6 +24,6 @@ class NatsWrapper {
     }
 }
 
-const natWrapper = new NatsWrapper()
+const natsWrapper = new NatsWrapper()
 
-module.exports = natWrapper
+module.exports = natsWrapper

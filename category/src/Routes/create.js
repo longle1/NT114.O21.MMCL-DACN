@@ -1,5 +1,6 @@
 const express = require("express")
 const categoryModel = require('../models/category')
+const categoryPublisher = require('../nats/category-publisher')
 const router = express.Router()
 
 const objects = [
@@ -14,16 +15,21 @@ const objects = [
     "Khoa hoc du lieu"
 ]
 
-router.get('/create',async (req, res) => {
-    for(const obj of objects) {
+router.get('/create', async (req, res) => {
+    for (const obj of objects) {
         await categoryModel.create({
             name: obj
         })
     }
     const listData = await categoryModel.find({})
-    res.send({data: listData})
 
-    res.status(201).send("Khoi tao thanh cong")
+    console.log(listData);
+
+    categoryPublisher(listData, 'category:created')
+    res.status(201).json({
+        message: "Khoi tao thanh cong",
+        data: listData
+    })
 })
 
 module.exports = router

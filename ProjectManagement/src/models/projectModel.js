@@ -1,15 +1,22 @@
 const mongoose = require("mongoose")
 
 const projectSchema = new mongoose.Schema({
-    nameProject: String,
-    description: String,
-    creator: mongoose.Schema.Types.ObjectId,
+    nameProject: {
+        type: String,
+        default: null
+    },
+    description: {
+        type: String,
+        default: null
+    },
+    creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    },
     members: [
         {
-            users: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'users'
-            }
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users'
         }
     ],
     category: {

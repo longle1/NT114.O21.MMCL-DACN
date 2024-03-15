@@ -1,17 +1,20 @@
-const natWrapper = require("../../nats-wrapper")
+const issueModel = require("../../models/issueModel")
+const natsWrapper = require("../../nats-wrapper")
 
 const issueCreatedListener = () => {
-    const options = natWrapper.client.subscriptionOptions()
+    const options = natsWrapper.client.subscriptionOptions()
         .setManualAckMode(true)
 
-    const subscription = natWrapper.client.subscribe('issue:created', options)
+    const subscription = natsWrapper.client.subscribe('issue:created', options)
 
-    subscription.on('message', (msg) => {
-        const data = msg.getData()
+    subscription.on('message', async (msg) => {
+        if (typeof msg.getData() === 'string') {
+            console.log(`Received event issue:created ${msg.getSequence()}`);
+            const parseData = JSON.parse(msg.getData())
+            //tien hanh luu vao database sau khi lay du lieu thanh cong
+            const issue = await issueModel.create(parseData)
 
-        if (typeof data === 'string') {
-            console.log(`Received event ${msg.getSequence()}, with data ${data}`);
-
+            console.log("issue", issue);
             msg.ack()
         }
     })

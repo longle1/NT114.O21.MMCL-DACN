@@ -2,11 +2,26 @@ const mongoose = require("mongoose")
 
 const issueSchema = new mongoose.Schema({
     projectId: mongoose.Schema.Types.ObjectId,
-    priority: Number,
-    shortSummary: String,
-    positionList: Number,
-    issueType: Number,
-    issueStatus: Number
+    priority: {
+        type: Number,
+        default: null
+    },
+    shortSummary: {
+        type: String,
+        default: null
+    },
+    positionList: {
+        type: Number,
+        default: null
+    },
+    issueType: {
+        type: Number,
+        default: null
+    },
+    issueStatus: {
+        type: Number,
+        default: null
+    }
 })
 
 const issueModel = mongoose.model('issues', issueSchema)

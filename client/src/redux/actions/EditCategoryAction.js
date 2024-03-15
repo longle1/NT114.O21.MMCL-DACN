@@ -12,7 +12,7 @@ export const getCategory = (props) => {
         })
     }
 }
-
+//lấy ra danh sách dự án hiện tại
 export const getItemCategory = (props) => {
     return dispatch => {
         dispatch({
@@ -22,31 +22,29 @@ export const getItemCategory = (props) => {
     }
 }
 
+//cập nhật lại thông tin của project
 export const updateItemCategory = (props) => {
     return async dispatch => {
         try {
-            const res = await Axios.put(`http://localhost:4000/api/list/category/edit/${props.id}`, {props: props})
+            await Axios.put(`https://jira.dev/api/projectmanagement/update/${props.id}`, { props })
 
-            if(res.data.status) {
-                dispatch(ListProjectAction())
-                dispatch(drawerAction(true))
-            }
-        }catch(error) {
-            console.log("Error at http://localhost:4000/api/list/edit/category ", error);
+            dispatch(ListProjectAction())
+            dispatch(drawerAction(true))
+            showNotificationWithIcon('success', 'Update project', 'Successfully updated this project')
+        } catch (error) {
+            console.log("Error at `https://jira.dev/api/projectmanagement/update/ ", error);
         }
     }
 }
 export const deleteItemCategory = (id) => {
     return async dispatch => {
         try {
-            const res = await Axios.delete(`http://localhost:4000/api/list/category/delete/${id}`)
+            await Axios.delete(`https://jira.dev/api/projectmanagement/delete/${id}`)
 
-            if(res.data.status) {
-                dispatch(ListProjectAction())
-                showNotificationWithIcon('success', 'Delete project', 'Successfully deleted this project')
-            }
-        }catch(error) {
-            showNotificationWithIcon('error', 'Delete project', 'Failed deletion this project')
+            dispatch(ListProjectAction())
+            showNotificationWithIcon('success', 'Delete project', 'Successfully deleted this project')
+        } catch (error) {
+            showNotificationWithIcon('error', 'Delete project', 'delete failed project')
             console.log("Error at http://localhost:4000/api/list/category/delete ", error);
         }
     }

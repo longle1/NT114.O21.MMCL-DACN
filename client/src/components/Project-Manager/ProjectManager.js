@@ -20,6 +20,9 @@ export default function ProjectManager() {
 
     const [value, setValue] = useState('')
 
+    //lấy ra người dùng hiện tại đang đăng nhập
+    const userInfo = useSelector(state => state.user.userInfo)
+
     //su dung cho debounce search
     const search = useRef(null)
 
@@ -133,16 +136,16 @@ export default function ProjectManager() {
     const columns = [
         {
             title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
+            dataIndex: '_id',
+            key: '_id',
         },
         {
             title: 'Project Name',
             dataIndex: 'projectName',
             key: 'projectName',
-            render: (text, record, index) => {  
-                return <NavLink to={`/projectDetail/${record.id}`} style={{textDecoration: 'none'}}>
-                    <span>{record.projectName}</span>
+            render: (text, record, index) => {
+                return <NavLink to={`/projectDetail/${record._id}`} style={{ textDecoration: 'none' }}>
+                    <span>{record.nameProject}</span>
                 </NavLink>
             }
         },
@@ -151,7 +154,7 @@ export default function ProjectManager() {
             dataIndex: 'category',
             key: 'category',
             render: (text, record, index) => {
-                return <Tag key={index} color="magenta">{record.category.categoryName}</Tag>
+                return <Tag key={index} color="magenta">{record.category?.name}</Tag>
             }
         },
         {
@@ -159,7 +162,7 @@ export default function ProjectManager() {
             dataIndex: 'creatorId',
             key: 'creatorId',
             render: (text, record, index) => {
-                return <Tag key={index} color="green">{record.creator.userName}</Tag>
+                return <Tag key={index} color="green">{record.creator?.username}</Tag>
             }
         },
         {
@@ -167,77 +170,87 @@ export default function ProjectManager() {
             dataIndex: 'members',
             key: 'members',
             render: (text, record, index) => {
-                return <div>
-                    {record.members?.slice(0, 3).map((user, index) => {
-                        return <Popover content={() => {
-                            console.log("Hello world");
-                        }} title="Title">
-                            <Avatar key={index} src={<img src={user.avatar} alt="avatar" />} />
+                if (userInfo.id === record.creator._id) {
+                    return <div>
+                        {record.members?.slice(0, 3).map((user, index) => {
+                            return <Popover content={() => {
+                                console.log("Hello world");
+                            }} title="Title">
+                                <Avatar key={index} src={<img src={user.avatar} alt="avatar" />} />
+                            </Popover>
+                        })}
+                        {record.members?.length >= 3 ? <Avatar>...</Avatar> : ''}
+                        <Popover placement="right" title="Add User" content={() => {
+                            return <AutoComplete
+                                style={{ width: '100%' }}
+                                onSearch={(value) => {
+                                    //kiem tra gia tri co khac null khong, khac thi xoa
+                                    if (search.current) {
+                                        clearTimeout(search.current)
+                                    }
+                                    search.current = setTimeout(() => {
+                                        dispatch(getUserKeyword(value))
+                                    }, 500)
+                                }}
+                                value={value}
+                                onChange={(value) => {
+                                    setValue(value)
+                                }}
+                                defaultValue=''
+                                options={listUser?.reduce((newListUser, user) => {
+                                    if (user._id !== userInfo.id) {
+                                        return [...newListUser, { label: user.username, value: user._id }]
+                                    }
+                                    return newListUser
+                                }, [])}
+                                onSelect={(value, option) => {
+                                    setValue(option.label)
+                                    dispatch(insertUserIntoProject({
+                                        project_id: record._id,  //id cua project
+                                        user_id: value   //id cua username
+                                    }))
+                                }}
+                                placeholder="input here"
+                            />
+                        }} trigger="click">
+                            <Avatar style={{ backgroundColor: '#87d068' }}>
+                                <i className="fa fa-plus"></i>
+                            </Avatar>
                         </Popover>
-                    })}
-                    {record.members?.length >= 3 ? <Avatar>...</Avatar> : ''}
-                    <Popover placement="right" title="Add User" content={() => {
-                        return <AutoComplete
-                            style={{ width: '100%' }}
-                            onSearch={(value) => {
-                                //kiem tra gia tri co khac null khong, khac thi xoa
-                                if(search.current) {
-                                    clearTimeout(search.current)
-                                }
-                                search.current = setTimeout(() => {
-                                    dispatch(getUserKeyword(value))
-                                }, 500)
-                            }}
-                            value={value}
-                            onChange={(value) => {
-                                setValue(value)
-                            }}
-                            defaultValue=''
-                            options={listUser?.map((user, index) => {
-                                return { label: user.userName, value: user.userId.toString() }
-                            })}
-                            onSelect={(value, option) => {
-                                setValue(option.label)
-                                dispatch(insertUserIntoProject({
-                                    id: record.id,
-                                    userId: value
-                                }))
-                            }}
-                            placeholder="input here"
-                        />
-                    }} trigger="click">
-                        <Avatar style={{ backgroundColor: '#87d068' }}>
-                            <i className="fa fa-plus"></i>
-                        </Avatar>
-                    </Popover>
-                </div>
+                    </div>
+                }
+                return <></>
             }
         },
         {
             title: 'Action',
             dataIndex: 'action',
             key: 'categoryId',
-            render: (text, record, index) => (
-                <div>
-                    <Button className='mr-2 text-primary' type="default" icon={<EditOutlined />} size='large' onClick={() => {
-                        dispatch(drawer_edit_form_action(<FormEdit />))
-                        //gửi item hiện tại lên redux
-                        record.creator = 45
-                        dispatch(getItemCategory(record))
-                    }} />
-                    <Popconfirm
-                        title="Delete this task"
-                        description="Are you sure to delete this task?"
-                        okText="Yes"
-                        cancelText="No"
-                        onConfirm={() => {
-                            dispatch(deleteItemCategory(record.id))
-                        }}
-                    >
-                        <Button className='mr-2' type="primary" icon={<DeleteOutlined />} size='large' />
-                    </Popconfirm>
-                </div>
-            ),
+            render: (text, record, index) => {
+                if (userInfo.id === record.creator._id) {
+                    return <div>
+                        <Button className='mr-2 text-primary' type="default" icon={<EditOutlined />} size='large' onClick={() => {
+                            dispatch(drawer_edit_form_action(<FormEdit />))
+                            //gửi item hiện tại lên redux
+                            record.creator = 45
+                            dispatch(getItemCategory(record))
+                        }} />
+                        <Popconfirm
+                            title="Delete this task"
+                            description="Are you sure to delete this task?"
+                            okText="Yes"
+                            cancelText="No"
+                            onConfirm={() => {
+                                dispatch(deleteItemCategory(record._id))
+                            }}
+                        >
+                            <Button className='mr-2' type="primary" icon={<DeleteOutlined />} size='large' />
+                        </Popconfirm>
+                    </div>
+                }else {
+                    return <></>
+                }
+            },
         }
     ];
     return (

@@ -1,22 +1,44 @@
 const express = require("express")
 const issueModel = require('../models/issueModel')
 const currentUserMiddleware = require("../Middlewares/currentUser-Middleware")
-const issueCreatedPublisher = require("../nats/listener/issue-created-publisher")
+const issuePublisher = require("../nats/publisher/issue-publisher")
 
 const router = express.Router()
 
 router.get("/create", currentUserMiddleware, async (req, res) => {
     try {
-        const { description, shortSummary } = req.body
+        const { projectId, creator, priority, timeSpent, timeRemaining, timeOriginalEstimate, description, shortSummary, positionList, issueType, issueStatus, assignees } = req.body
 
         const newIssue = await issueModel.create({
-            description: "tron vn", 
-            shortSummary: "tron vn"
+            projectId,
+            priority,
+            shortSummary,
+            positionList,
+            issueType,
+            issueStatus,
+            assignees,
+            creator,
+            timeSpent,
+            timeRemaining,
+            timeOriginalEstimate,
+            timeOriginalEstimate,
+            description
         })
 
-        console.log(newIssue);
+        
 
-        issueCreatedPublisher(newIssue)
+
+        const issueCopy = {
+            _id: newIssue._id,
+            projectId: newIssue.projectId,
+            priority: newIssue.priority,
+            shortSummary: newIssue.shortSummary,
+            positionList: newIssue.positionList,
+            issueType: newIssue.issueType,
+            issueStatus: newIssue.issueStatus
+        }
+
+        issuePublisher(issueCopy, 'issue:created')
 
         res.status(201).json({
             message: "tao thanh cong 1 issue",

@@ -7,6 +7,8 @@ const errorHandler = require("./Middlewares/Error-handler")
 const natsWrapper = require("./nats-wrapper")
 
 const issueCreatedListener = require("./nats/listener/issue-created-listeners")
+const authCreatedListener = require("./nats/listener/auth-created-listener")
+const categoryCreatedListener = require("./nats/listener/category-created-listener")
 
 
 const app = express()
@@ -22,6 +24,11 @@ app.use(cookieSession({
 
 app.use('/api/projectmanagement', require("./Routes/create"))
 app.use('/api/projectmanagement', require("./Routes/getList"))
+app.use('/api/projectmanagement', require("./Routes/listUser"))
+app.use('/api/projectmanagement', require("./Routes/insertUser"))
+app.use('/api/projectmanagement', require("./Routes/update"))
+app.use('/api/projectmanagement', require("./Routes/delete"))
+app.use('/api/projectmanagement', require("./Routes/getProject"))
 
 async function connectToMongoDb() {
     try {
@@ -46,6 +53,8 @@ async function connectToNats() {
         console.log("Ket noi thanh cong toi nats");
 
         issueCreatedListener()
+        authCreatedListener()
+        categoryCreatedListener()
 
     } catch (error) {
         console.log("Kết nối thất bại tới nats", error);

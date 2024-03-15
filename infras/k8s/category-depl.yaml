@@ -15,7 +15,22 @@ spec:
       containers:
         - name: category
           image: longle1/category
-
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt_key
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: "jiraproject"
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MONGO_URL
+              value: "mongodb://category-mongo-srv:27017/categories"
 ---
 
 apiVersion: v1

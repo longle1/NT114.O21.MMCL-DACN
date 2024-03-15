@@ -10,6 +10,7 @@ function Create(props) {
     }
     const dispatch = useDispatch()
     const categoryList = useSelector(state => state.categories.categoryList)
+
     const {
         handleChange,
         handleSubmit,
@@ -37,15 +38,15 @@ function Create(props) {
                 <form onSubmit={handleSubmit}>
                     <div className='form-group'>
                         <p>Name</p>
-                        <input onChange={handleChange} className='form-control' name='projectName' />
+                        <input onChange={handleChange} className='form-control' name='nameProject' />
                     </div>
                     <div className='form-group'>
                         <p>Description</p>
-                        <Editor name='description' 
+                        <Editor name='description'
                             apiKey='golyll15gk3kpiy6p2fkqowoismjya59a44ly52bt1pf82oe'
                             init={{
-                                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss',
-                                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount linkchecker',
+                                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
                                 tinycomments_mode: 'embedded',
                                 tinycomments_author: 'Author name',
                                 mergetags_list: [
@@ -75,20 +76,26 @@ function Create(props) {
 const handleCreateProject = withFormik({
     enableReinitialize: true,
     mapPropsToValues: (props) => {
-        return { projectName: '', description: '', category: props.categoryList[0]?.id }
+        return { nameProject: '', description: '', category: props.categoryList[0]?.id }
     },
     // validationSchema: Yup.object().shape({
 
     // }),
     handleSubmit: (values, { props, setSubmitting }) => {
-        console.log(values);
-        props.dispatch(createProjectAction(values))
+        if (props.userInfo) {
+            values.creator = props.userInfo.id
+            console.log(values);
+            props.dispatch(createProjectAction(values))
+        } else {
+            alert("khong tim thay thong tin ve user hien tai")
+        }
     },
 
     displayName: 'EditForm',
 })(Create);
 
 const mapStateToProps = (state) => ({
+    userInfo: state.user.userInfo,
     categoryList: state.categories.categoryList
 })
 

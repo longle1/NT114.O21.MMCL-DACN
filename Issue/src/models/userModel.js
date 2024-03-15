@@ -1,8 +1,14 @@
 const mongoose = require("mongoose")
 
 const userSchema = new mongoose.Schema({
-    username: String,
-    avatar: String
+    username: {
+        type: String,
+        default: null
+    },
+    avatar: {
+        type: String,
+        default: null
+    }
 })
 
 const userModel = new mongoose.model('users', userSchema)

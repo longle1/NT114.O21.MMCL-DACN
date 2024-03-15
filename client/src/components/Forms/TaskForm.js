@@ -1,17 +1,16 @@
 import { Editor } from '@tinymce/tinymce-react'
 import { Input, InputNumber, Select, Slider } from 'antd'
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import { getListPriority, getListType } from '../../redux/actions/TaskAction';
-export default function TaskForm() {
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { GetProjectAction } from '../../redux/actions/ListProjectAction';
+import { showNotificationWithIcon } from '../../util/NotificationUtil';
+import { withFormik } from 'formik';
+function TaskForm() {
 
-    //su dung de lua chon nguoi tham vao 1 project
-    const [value, setValue] = useState([]);
 
-    //lay ra danh sach cac loai nhiem vu, loi cua task
-    const listType = useSelector(state => state.listTask.listType)
-    //lay ra danh sach muc do uu tien cua 1 task
-    const listPriority = useSelector(state => state.listTask.listPriority)
+    //lay ra thong tin ve project
+    const projectInfo = useSelector(state => state.listProject.projectInfo)
 
     //theo doi thoi gian cua 1 task
     const [timeTracking, setTimeTracking] = useState({
@@ -19,13 +18,25 @@ export default function TaskForm() {
         timeRemaining: 0
     })
 
-    const listProject = useSelector(state => state.listProject.listProject)
+    const issueTypeOptions = [
+        { label: "Story", value: 0 },
+        { label: "Task", value: 1 },
+        { label: "Bug", value: 2 }
+    ]
+    const priorityTypeOptions = [
+        { label: "Highest", value: 0 },
+        { label: "High", value: 1 },
+        { label: "Medium", value: 2 },
+        { label: "Low", value: 3 },
+        { label: "Lowest", value: 4 }
+    ]
 
-    console.log(listProject);
+    const { id } = useParams()
 
     useEffect(() => {
-        dispatch(getListType())
-        dispatch(getListPriority())
+        if (id !== undefined) {
+            dispatch(GetProjectAction(id))
+        }
     }, [])
     const dispatch = useDispatch()
     return (
@@ -33,14 +44,7 @@ export default function TaskForm() {
             <form >
                 <div className='row'>
                     <label>Project Name</label>
-                    <Select
-                        defaultValue="Select your project"
-                        style={{ width: '100%' }}
-
-                        options={listProject?.map((project, index) => {
-                            return { label: project.projectName, value: project.id }
-                        })}
-                    />
+                    <Input value={projectInfo?.nameProject} disabled />
                 </div>
                 <div className='row mt-2'>
                     <div className='col-6 p-0 pr-5'>
@@ -48,9 +52,7 @@ export default function TaskForm() {
                         <Select
                             defaultValue="Select your issue"
                             style={{ width: '100%' }}
-                            options={listType?.map((type, index) => {
-                                return { label: type.typeName, value: type.typeId }
-                            })}
+                            options={issueTypeOptions}
                         />
                     </div>
                     <div className='col-6 p-0'>
@@ -58,9 +60,7 @@ export default function TaskForm() {
                         <Select
                             defaultValue="Select your priority"
                             style={{ width: '100%' }}
-                            options={listPriority?.map((priority, index) => {
-                                return { label: priority.priorityName, value: priority.priorityId }
-                            })}
+                            options={priorityTypeOptions}
                         />
                     </div>
                 </div>
@@ -75,8 +75,8 @@ export default function TaskForm() {
                     <Editor name='description'
                         apiKey='golyll15gk3kpiy6p2fkqowoismjya59a44ly52bt1pf82oe'
                         init={{
-                            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss',
-                            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount linkchecker',
+                            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
                             tinycomments_mode: 'embedded',
                             tinycomments_author: 'Author name',
                             mergetags_list: [
@@ -93,12 +93,14 @@ export default function TaskForm() {
                         <label>Assignees</label>
                         <Select mode={'multiple'}
                             style={{ width: '100%' }}
-                            options={[{ label: '1', value: 'long' }, { label: '2', value: 'duc' }, { label: '3', value: 'ngu' }]}
+                            options={projectInfo?.members?.map(value => {
+                                return { label: value.username, value: value._id }
+                            })}
+                            defaultValue="Select assignees"
                             placeholder={'Select Item...'}
                             maxTagCount={'responsive'}
-                            onSelect={(value, option) => {
+                            onChange={(value) => {
                                 console.log("value", value);
-                                console.log("option", option);
                             }}
                         />
                     </div>
@@ -140,8 +142,32 @@ export default function TaskForm() {
                         </div>
                     </div>
                 </div>
-
             </form>
         </div>
     )
 }
+const handleSubmitForm = withFormik({
+    enableReinitialize: true,
+    mapPropsToValues: (props) => {
+        return {
+            id: props.list?._id,
+            nameProject: props.list?.nameProject,
+            description: props.list?.description,
+            category: props.list?.category?._id,
+        }
+    },
+    // validationSchema: Yup.object().shape({
+
+    // }),
+    handleSubmit: (values, { props, setSubmitting }) => {
+
+    },
+
+    displayName: 'BasicForm',
+})(TaskForm);
+
+const mapStateToProps = (state) => ({
+    list: state.editCategory.list
+})
+
+export default connect(mapStateToProps)(handleSubmitForm)

@@ -2,20 +2,23 @@ const express = require('express')
 const projectModel = require('../models/projectModel')
 const router = express.Router()
 
-
-router.delete('/delete/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     const id = req.params.id
+
     const currentProject = await projectModel.findById(id)
+        .populate({
+            path: 'members',
+            select: '-__v -avatar'
+        })
 
     if (!currentProject) {
-        return res.status(400).json({
-            message: "Khong tim thay project"
+        res.status(400).json({
+            message: "Project khong ton tai"
         })
     } else {
-        const deletedProject = await projectModel.deleteOne({ _id: id })
         res.status(200).json({
-            message: "Xoa thanh thanh cong project",
-            data: deletedProject
+            message: "Lay thanh cong project",
+            data: currentProject
         })
     }
 })

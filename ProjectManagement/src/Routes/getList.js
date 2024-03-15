@@ -1,6 +1,7 @@
 const express = require('express')
 const projectModel = require('../models/projectModel')
 const categoryModel = require('../models/categoryModel')
+const userModel = require('../models/userModel')
 const router = express.Router()
 
 const objects = [
@@ -30,12 +31,22 @@ router.get('/hehe', async(req, res) => {
 router.get('/list',async (req, res) => {
     const data = await projectModel
         .find({})
-        .populate('category')
-    console.log(data);
+        .populate({
+            path: 'category',
+            select: ' -__v'
+        })
+        .populate({
+            path: 'creator',
+            select: '   -__v'
+        })
+        .populate({
+            path: 'members',
+            select: '-_id -__v'
+        })
     res.send({
         message: "Lay danh sach thanh cong",
         data
-    });
+    })
 })
 
 module.exports = router

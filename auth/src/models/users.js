@@ -3,10 +3,22 @@ const mongoose = require("mongoose")
 const bcrypt = require("bcrypt")
 
 const userSchema = new mongoose.Schema({
-    username: String,
-    email: String,
-    password: String,
-    avatar: String,
+    username: {
+        type: String,
+        default: null
+    },
+    email: {
+        type: String,
+        default: null
+    },
+    password: {
+        type: String,
+        default: null
+    },
+    avatar: {
+        type: String,
+        default: null
+    },
 })
 
 const userModel = new mongoose.model('users', userSchema)

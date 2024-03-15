@@ -15,7 +15,7 @@ function FormEdit(props) {
     const categoryList = useSelector(state => state.categories.categoryList)
 
     useEffect(() => {
-        //submit sự kiện để gửi lên form
+        // //submit sự kiện để gửi lên form
         dispatch(submit_edit_form_action(handleSubmit))
 
         //lấy ra danh sách category
@@ -34,21 +34,24 @@ function FormEdit(props) {
                     <div className='col-4'>
                         <div className="form-group">
                             <label>Project ID</label>
-                            <input onChange={handleChange} value={props.list.id} className="form-control" name='projectId' disabled />
+                            <input onChange={handleChange} value={props.list._id} className="form-control" name='projectId' disabled />
                         </div>
                     </div>
                     <div className='col-4'>
                         <div className="form-group">
                             <label>Project Name</label>
-                            <input onChange={handleChange} defaultValue={props.list.projectName} className="form-control" name='projectName' />
+                            <input onChange={handleChange} defaultValue={props.list.nameProject} className="form-control" name='nameProject' />
                         </div>
                     </div>
                     <div className='col-4'>
                         <div className="form-group">
                             <label>Categories</label>
-                            <select name='categoryId' className='form-control' onChange={handleChange} defaultValue={props.list.categoryId}>
+                            <select name='category' className='form-control' onChange={handleChange}>
                                 {categoryList.map((value, index) => {
-                                    return <option value={value.id} key={index}>{value.categoryName}</option>
+                                    if (props.list.category.name === value.name) {
+                                        return <option selected value={value._id} key={index}>{value.name}</option>
+                                    }
+                                    return <option value={value._id} key={index}>{value.name}</option>
                                 })}
                             </select>
                         </div>
@@ -60,8 +63,8 @@ function FormEdit(props) {
                                 apiKey='golyll15gk3kpiy6p2fkqowoismjya59a44ly52bt1pf82oe'
                                 initialValue={props.list.description}
                                 init={{
-                                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss',
-                                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount linkchecker',
+                                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
                                     tinycomments_mode: 'embedded',
                                     tinycomments_author: 'Author name',
                                     mergetags_list: [
@@ -85,16 +88,17 @@ const handleSubmitForm = withFormik({
     enableReinitialize: true,
     mapPropsToValues: (props) => {
         return {
-            id: props.list?.id,
-            projectName: props.list?.projectName,
+            id: props.list?._id,
+            nameProject: props.list?.nameProject,
             description: props.list?.description,
-            categoryId: props.list?.categoryId,
+            category: props.list?.category?._id,
         }
     },
     validationSchema: Yup.object().shape({
 
     }),
     handleSubmit: (values, { props, setSubmitting }) => {
+        console.log(values);
         props.dispatch(updateItemCategory(values))
     },
 

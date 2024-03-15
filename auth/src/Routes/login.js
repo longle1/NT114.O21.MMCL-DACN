@@ -19,9 +19,6 @@ router.post("/login", async (req, res, next) => {
                     email: currentUser.email,
                 }, process.env.JWT_KEY)
 
-                console.log(process.env.JWT_KEY);
-
-
                 //luu tru jwt trong cookie
                 req.session = {
                     jwt: userJwt
