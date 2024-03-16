@@ -23,12 +23,10 @@ const projectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'categories'
     },
-    projectStatus: [
+    issues: [
         {
-            issue: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'issues'
-            }
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'issues'
         }
     ]
 })

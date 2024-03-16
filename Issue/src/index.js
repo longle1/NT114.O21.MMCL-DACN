@@ -20,6 +20,10 @@ app.use(cookieSession({
 }))
 
 app.use('/api/issue', require('./Routes/create'))
+app.use('/api/issue', require('./Routes/getIsuue'))
+app.use('/api/issue', require('./Routes/delete'))
+app.use('/api/issue', require('./Routes/insertIssue'))
+app.use('/api/issue', require('./Routes/update'))
 
 async function connectToNats() {
     try {

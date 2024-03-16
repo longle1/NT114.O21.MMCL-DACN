@@ -1,7 +1,6 @@
 const express = require('express')
 const projectModel = require('../models/projectModel')
 const categoryModel = require('../models/categoryModel')
-const userModel = require('../models/userModel')
 const router = express.Router()
 
 const objects = [
@@ -16,19 +15,19 @@ const objects = [
     "Khoa hoc du lieu"
 ]
 
-router.get('/hehe', async(req, res) => {
-    for(const obj of objects) {
+router.get('/hehe', async (req, res) => {
+    for (const obj of objects) {
         await categoryModel.create({
             name: obj
         })
     }
     const listData = await categoryModel.find({})
-    res.send({data: listData})
+    res.send({ data: listData })
 
     res.status(201).send("Khoi tao thanh cong")
 })
 
-router.get('/list',async (req, res) => {
+router.get('/list', async (req, res) => {
     const data = await projectModel
         .find({})
         .populate({
@@ -43,6 +42,13 @@ router.get('/list',async (req, res) => {
             path: 'members',
             select: '-_id -__v'
         })
+        .populate({
+            path: 'issues',
+            select: '-__v'
+        })
+    const listCategory = await categoryModel.find({})
+        console.log("danh sach category", listCategory);
+        console.log("danh sach du an hien tai", data);
     res.send({
         message: "Lay danh sach thanh cong",
         data

@@ -13,7 +13,6 @@ export default (state = initialState, action) => {
             return { ...state }
         case GET_PROJECT_API:
             state.projectInfo = action.data
-            console.log(state.projectInfo);
             return { ...state }
         default:
             return state

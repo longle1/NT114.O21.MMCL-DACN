@@ -76,7 +76,7 @@ function Create(props) {
 const handleCreateProject = withFormik({
     enableReinitialize: true,
     mapPropsToValues: (props) => {
-        return { nameProject: '', description: '', category: props.categoryList[0]?.id }
+        return { nameProject: '', description: '', category: props.categoryList[0]?._id }
     },
     // validationSchema: Yup.object().shape({
 
@@ -84,7 +84,6 @@ const handleCreateProject = withFormik({
     handleSubmit: (values, { props, setSubmitting }) => {
         if (props.userInfo) {
             values.creator = props.userInfo.id
-            console.log(values);
             props.dispatch(createProjectAction(values))
         } else {
             alert("khong tim thay thong tin ve user hien tai")

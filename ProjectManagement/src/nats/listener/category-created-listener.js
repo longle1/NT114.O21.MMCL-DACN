@@ -9,16 +9,11 @@ const categoryCreatedListener = () => {
     subscription.on('message', async (msg) => {
         if (typeof msg.getData() === 'string') {
             console.log(`Received event category:created ${msg.getSequence()}`);
-            console.log("data ne", msg.getData());
             const parseData = JSON.parse(msg.getData())
 
             for (let category of parseData) {
                 await categorymodel.create(category)
             }
-
-            const data = await categorymodel.find({})
-
-            console.log(data);
             msg.ack()
         }
     })

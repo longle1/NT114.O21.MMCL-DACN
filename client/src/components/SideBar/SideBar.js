@@ -4,8 +4,9 @@ import '../Modal/InfoModal/InfoModal.css'
 import { useDispatch } from 'react-redux';
 import { drawer_edit_form_action } from '../../redux/actions/DrawerAction';
 import TaskForm from '../Forms/TaskForm';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import { userLoggedoutAction } from '../../redux/actions/UserAction';
+import { showNotificationWithIcon } from '../../util/NotificationUtil';
 const SideBar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const dispatch = useDispatch()
@@ -16,6 +17,9 @@ const SideBar = () => {
     const closeSidebar = () => {
         setIsSidebarOpen(false);
     };
+
+    const { id } = useParams()
+
 
     return (
         <div className={`page-wrapper ${isSidebarOpen ? 'toggled' : ''}`}>
@@ -37,7 +41,11 @@ const SideBar = () => {
                                     <span>General</span>
                                 </li>
                                 <li className="sidebar-dropdown font-weight-bold" style={{ fontSize: '17px' }} onClick={() => {
-                                    dispatch(drawer_edit_form_action(<TaskForm />))
+                                    if(id) {
+                                        dispatch(drawer_edit_form_action(<TaskForm />))
+                                    }else {
+                                        showNotificationWithIcon('error', 'Create Issue', 'Vui long tham gia vao du an truoc khi tao van de')
+                                    }
                                 }}>
                                     <NavLink href="#">
                                         <i style={{ fontSize: '17px' }} className="fa-solid fa-plus text-light"></i>

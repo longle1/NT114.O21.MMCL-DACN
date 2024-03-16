@@ -19,6 +19,7 @@ export const GetProjectAction = (id) => {
     return async dispatch => {
         try {
             const res = await Axios.get(`https://jira.dev/api/projectmanagement/${id}`)
+            console.log(res.data.data);
             dispatch({
                 type: GET_PROJECT_API,
                 data: res.data.data

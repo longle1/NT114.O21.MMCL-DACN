@@ -1,5 +1,6 @@
 const express = require('express')
 const projectModel = require('../models/projectModel')
+const issueModel = require('../models/issueModel')
 const router = express.Router()
 
 router.get('/:id', async (req, res) => {
@@ -10,7 +11,16 @@ router.get('/:id', async (req, res) => {
             path: 'members',
             select: '-__v -avatar'
         })
+        .populate({
+            path: 'issues',
+            select: '-__v',
+            populate: {
+                path: 'assignees',
+                select: '-__v'
+            }
+        })
 
+    const issue = await issueModel.find({})
     if (!currentProject) {
         res.status(400).json({
             message: "Project khong ton tai"

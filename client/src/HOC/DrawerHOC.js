@@ -1,7 +1,7 @@
 import React from 'react';
 import { Drawer, Button, Space } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { drawerAction } from '../redux/actions/DrawerAction';
+import { drawerAction, drawer_edit_form_action } from '../redux/actions/DrawerAction';
 export default function DrawerHOC() {
     const visible = useSelector(state => state.isOpenDrawer.visible)
     const component = useSelector(state => state.isOpenDrawer.component)
@@ -9,10 +9,8 @@ export default function DrawerHOC() {
     
     const dispatch = useDispatch()
     const handleClose = () => {
+        dispatch(drawer_edit_form_action(<div/>))
         dispatch(drawerAction(true))
-    }
-    const handleOpen = () => {
-        dispatch(drawerAction(false))
     }
     return (
         <>

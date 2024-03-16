@@ -5,8 +5,8 @@ import { connect, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { GetProjectAction } from '../../redux/actions/ListProjectAction';
 import { withFormik } from 'formik';
-import { submit_edit_form_action } from '../../redux/actions/DrawerAction';
 import { createIssue } from '../../redux/actions/IssueAction';
+import { submit_edit_form_action } from '../../redux/actions/DrawerAction';
 function TaskForm(props) {
     //theo doi thoi gian cua 1 task
     const [timeTracking, setTimeTracking] = useState({
@@ -37,11 +37,9 @@ function TaskForm(props) {
         if (id !== undefined) {
             //thiet lap id project cho withformik
             setFieldValue('projectId', id)
-            
-
+            dispatch(GetProjectAction(id))
             // //submit sự kiện để gửi lên form
             dispatch(submit_edit_form_action(handleSubmit))
-            dispatch(GetProjectAction(id))
         }
     }, [])
     const dispatch = useDispatch()
@@ -50,7 +48,7 @@ function TaskForm(props) {
             <form onSubmit={handleSubmit}>
                 <div className='row'>
                     <label>Project Name</label>
-                    <Input value={props.projectInfo?.nameProject} disabled/>
+                    <Input value={props.projectInfo?.nameProject} disabled />
                 </div>
                 <div className='row mt-2'>
                     <div className='col-6 p-0 pr-5'>

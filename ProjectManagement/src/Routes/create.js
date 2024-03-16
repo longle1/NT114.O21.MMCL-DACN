@@ -7,10 +7,9 @@ const router = express.Router()
 
 router.post('/create', currentUserMiddleware, async (req, res, next) => {
     try {
-        const { nameProject, description, category, creator } = req.body.data;
-        console.log('category', category);
+        const { nameProject, description, category, creator } = req.body;
+        console.log("req.body", category);
         const existedProject = await projectModel.findOne({ nameProject })
-
         //neu project chua ton tai
         if (existedProject) {
             throw new BadRequestError("Project already existed")

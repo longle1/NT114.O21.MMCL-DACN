@@ -17,9 +17,6 @@ const authCreatedListener = () => {
                 username: parseData.username,
                 avatar: parseData.avatar
             })
-
-            console.log("project management co user ", parseData);
-
             msg.ack()
         }
     })

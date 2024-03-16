@@ -9,6 +9,8 @@ const natsWrapper = require("./nats-wrapper")
 const issueCreatedListener = require("./nats/listener/issue-created-listeners")
 const authCreatedListener = require("./nats/listener/auth-created-listener")
 const categoryCreatedListener = require("./nats/listener/category-created-listener")
+const issueUpdatedListener = require("./nats/listener/issue-updated-listener")
+const issueDeleteddListener = require("./nats/listener/issue-deleted-listener")
 
 
 const app = express()
@@ -29,6 +31,7 @@ app.use('/api/projectmanagement', require("./Routes/insertUser"))
 app.use('/api/projectmanagement', require("./Routes/update"))
 app.use('/api/projectmanagement', require("./Routes/delete"))
 app.use('/api/projectmanagement', require("./Routes/getProject"))
+app.use('/api/projectmanagement', require("./Routes/insertIssue"))
 
 async function connectToMongoDb() {
     try {
@@ -52,10 +55,16 @@ async function connectToNats() {
         process.on('SIGTERM', () => { natsWrapper.client.close() })
         console.log("Ket noi thanh cong toi nats");
 
+        //lang nghe su kien created tu issue service
         issueCreatedListener()
+        //lang nghe su kien updated tu issue service
+        issueUpdatedListener()
+        //lang nghe su kien deleted tu issue service
+        issueDeleteddListener()
+        //lang nghe su kien created tu auth service
         authCreatedListener()
+        //lang nghe su kien created tu category service
         categoryCreatedListener()
-
     } catch (error) {
         console.log("Kết nối thất bại tới nats", error);
     }

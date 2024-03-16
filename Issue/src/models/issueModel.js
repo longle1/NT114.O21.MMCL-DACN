@@ -50,10 +50,8 @@ const issueSchema = new mongoose.Schema({
     ],
     comments: [
         {
-            comment: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'comments'
-            }
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'comments'
         }
     ]
 })

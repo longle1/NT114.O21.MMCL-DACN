@@ -5,13 +5,15 @@ import ListProjectReducer from './reducers/ListProjectReducer'
 import DrawerReducer from './reducers/DrawerReducer'
 import EditCategoryReducer from './reducers/EditCategoryReducer'
 import UserReducer from './reducers/UserReducer'
+import IssueReducer from './reducers/IssueReducer'
 const rootReducer = combineReducers({
     //reducer khai báo ở đây
     categories: CategoryReducer,
     listProject: ListProjectReducer,
     isOpenDrawer: DrawerReducer,
     editCategory: EditCategoryReducer,
-    user: UserReducer
+    user: UserReducer,
+    issue: IssueReducer
 })
 
 const store = createStore(rootReducer, applyMiddleware(thunk))

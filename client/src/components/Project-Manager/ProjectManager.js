@@ -171,7 +171,7 @@ export default function ProjectManager() {
             key: 'members',
             render: (text, record, index) => {  //userInfo.id === record.creator._id
                 return <>
-                    {userInfo.id === record.creator._id ? (
+                    {userInfo.id === record.creator?._id ? (
                         <div>
                             {
                                 record.members?.slice(0, 3).map((user, index) => {
@@ -209,7 +209,7 @@ export default function ProjectManager() {
                                     onSelect={(value, option) => {
                                         setValue(option.label)
                                         dispatch(insertUserIntoProject({
-                                            project_id: record._id,  //id cua project
+                                            project_id: record?._id,  //id cua project
                                             user_id: value   //id cua username
                                         }))
                                     }}
@@ -237,7 +237,7 @@ export default function ProjectManager() {
             dataIndex: 'action',
             key: 'categoryId',
             render: (text, record, index) => {
-                if (userInfo.id === record.creator._id) {
+                if (userInfo.id === record.creator?._id) {
                     return <div>
                         <Button className='mr-2 text-primary' type="default" icon={<EditOutlined />} size='large' onClick={() => {
                             dispatch(drawer_edit_form_action(<FormEdit />))
@@ -251,7 +251,7 @@ export default function ProjectManager() {
                             okText="Yes"
                             cancelText="No"
                             onConfirm={() => {
-                                dispatch(deleteItemCategory(record._id))
+                                dispatch(deleteItemCategory(record?._id))
                             }}
                         >
                             <Button className='mr-2' type="primary" icon={<DeleteOutlined />} size='large' />
