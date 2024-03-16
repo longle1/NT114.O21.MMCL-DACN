@@ -44,10 +44,8 @@ const issueSchema = new mongoose.Schema({
     },
     assignees: [
         {
-            user: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'users'
-            }
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users'
         }
     ],
     comments: [

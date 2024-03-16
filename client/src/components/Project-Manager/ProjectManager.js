@@ -169,57 +169,67 @@ export default function ProjectManager() {
             title: 'Members',
             dataIndex: 'members',
             key: 'members',
-            render: (text, record, index) => {
-                if (userInfo.id === record.creator._id) {
-                    return <div>
-                        {record.members?.slice(0, 3).map((user, index) => {
-                            return <Popover content={() => {
-                                console.log("Hello world");
-                            }} title="Title">
-                                <Avatar key={index} src={<img src={user.avatar} alt="avatar" />} />
+            render: (text, record, index) => {  //userInfo.id === record.creator._id
+                return <>
+                    {userInfo.id === record.creator._id ? (
+                        <div>
+                            {
+                                record.members?.slice(0, 3).map((user, index) => {
+                                    return <Popover content={() => {
+                                        console.log("Hello world");
+                                    }} title="Title">
+                                        <Avatar key={index} src={<img src={user.avatar} alt="avatar" />} />
+                                    </Popover>
+                                })
+                            }
+                            {record.members?.length >= 3 ? <Avatar>...</Avatar> : ''}
+                            <Popover placement="right" title="Add User" content={() => {
+                                return <AutoComplete
+                                    style={{ width: '100%' }}
+                                    onSearch={(value) => {
+                                        //kiem tra gia tri co khac null khong, khac thi xoa
+                                        if (search.current) {
+                                            clearTimeout(search.current)
+                                        }
+                                        search.current = setTimeout(() => {
+                                            dispatch(getUserKeyword(value))
+                                        }, 500)
+                                    }}
+                                    value={value}
+                                    onChange={(value) => {
+                                        setValue(value)
+                                    }}
+                                    defaultValue=''
+                                    options={listUser?.reduce((newListUser, user) => {
+                                        if (user._id !== userInfo.id) {
+                                            return [...newListUser, { label: user.username, value: user._id }]
+                                        }
+                                        return newListUser
+                                    }, [])}
+                                    onSelect={(value, option) => {
+                                        setValue(option.label)
+                                        dispatch(insertUserIntoProject({
+                                            project_id: record._id,  //id cua project
+                                            user_id: value   //id cua username
+                                        }))
+                                    }}
+                                    placeholder="input here"
+                                />
+                            }} trigger="click">
+                                <Avatar style={{ backgroundColor: '#87d068' }}>
+                                    <i className="fa fa-plus"></i>
+                                </Avatar>
                             </Popover>
-                        })}
-                        {record.members?.length >= 3 ? <Avatar>...</Avatar> : ''}
-                        <Popover placement="right" title="Add User" content={() => {
-                            return <AutoComplete
-                                style={{ width: '100%' }}
-                                onSearch={(value) => {
-                                    //kiem tra gia tri co khac null khong, khac thi xoa
-                                    if (search.current) {
-                                        clearTimeout(search.current)
-                                    }
-                                    search.current = setTimeout(() => {
-                                        dispatch(getUserKeyword(value))
-                                    }, 500)
-                                }}
-                                value={value}
-                                onChange={(value) => {
-                                    setValue(value)
-                                }}
-                                defaultValue=''
-                                options={listUser?.reduce((newListUser, user) => {
-                                    if (user._id !== userInfo.id) {
-                                        return [...newListUser, { label: user.username, value: user._id }]
-                                    }
-                                    return newListUser
-                                }, [])}
-                                onSelect={(value, option) => {
-                                    setValue(option.label)
-                                    dispatch(insertUserIntoProject({
-                                        project_id: record._id,  //id cua project
-                                        user_id: value   //id cua username
-                                    }))
-                                }}
-                                placeholder="input here"
-                            />
-                        }} trigger="click">
-                            <Avatar style={{ backgroundColor: '#87d068' }}>
-                                <i className="fa fa-plus"></i>
-                            </Avatar>
-                        </Popover>
-                    </div>
-                }
-                return <></>
+                        </div>) : (
+                        <div>
+                            {record.members?.slice(0, 3).map((user, index) => {
+                                return <Avatar key={index} src={<img src={user.avatar} alt="avatar" />} />
+                            })}
+                            {record.members?.length >= 3 ? <Avatar>...</Avatar> : ''}
+                        </div>)
+                    }
+
+                </>
             }
         },
         {
@@ -247,7 +257,7 @@ export default function ProjectManager() {
                             <Button className='mr-2' type="primary" icon={<DeleteOutlined />} size='large' />
                         </Popconfirm>
                     </div>
-                }else {
+                } else {
                     return <></>
                 }
             },

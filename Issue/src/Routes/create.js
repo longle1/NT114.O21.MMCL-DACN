@@ -5,10 +5,10 @@ const issuePublisher = require("../nats/publisher/issue-publisher")
 
 const router = express.Router()
 
-router.get("/create", currentUserMiddleware, async (req, res) => {
+router.post("/create", currentUserMiddleware, async (req, res) => {
     try {
         const { projectId, creator, priority, timeSpent, timeRemaining, timeOriginalEstimate, description, shortSummary, positionList, issueType, issueStatus, assignees } = req.body
-
+        console.log("body nhan duoc", req.body);
         const newIssue = await issueModel.create({
             projectId,
             priority,
@@ -25,9 +25,6 @@ router.get("/create", currentUserMiddleware, async (req, res) => {
             description
         })
 
-        
-
-
         const issueCopy = {
             _id: newIssue._id,
             projectId: newIssue.projectId,
@@ -38,14 +35,17 @@ router.get("/create", currentUserMiddleware, async (req, res) => {
             issueStatus: newIssue.issueStatus
         }
 
+        console.log("Tao thanh cong 1 issue", newIssue);
+
         issuePublisher(issueCopy, 'issue:created')
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "tao thanh cong 1 issue",
             data: newIssue
         })
 
     } catch (error) {
+        console.log("Tao that bai", error);
         res.status(400).json({
             message: error,
             data: null
