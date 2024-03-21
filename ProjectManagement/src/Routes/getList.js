@@ -36,19 +36,16 @@ router.get('/list', async (req, res) => {
         })
         .populate({
             path: 'creator',
-            select: '   -__v'
+            select: '-__v'
         })
         .populate({
             path: 'members',
-            select: '-_id -__v'
+            select: '-__v'
         })
         .populate({
             path: 'issues',
             select: '-__v'
         })
-    const listCategory = await categoryModel.find({})
-        console.log("danh sach category", listCategory);
-        console.log("danh sach du an hien tai", data);
     res.send({
         message: "Lay danh sach thanh cong",
         data

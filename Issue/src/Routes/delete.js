@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.delete("/delete/:id", currentUserMiddleware, async (req, res) => {
     try {
-        const { id } = req.params.id
+        const { id } = req.params
 
         const currentIssue = await issueModel.findById(id)
         if (!currentIssue) {

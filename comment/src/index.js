@@ -19,6 +19,10 @@ app.use(cookieSession({
 app.use(bodyParser.json())
 app.use(cors())
 
+app.use('/api/comments', require("./Routes/create"))
+app.use('/api/comments', require("./Routes/update"))
+app.use('/api/comments', require("./Routes/delete"))
+
 async function connectToNats() {
     try {
         await natsWrapper.connect(process.env.NATS_CLUSTER_ID, process.env.NATS_CLIENT_ID, process.env.NATS_URL)

@@ -152,9 +152,14 @@ body {
 /*--------------------sidebar-brand----------------------*/
 
 .sidebar-wrapper .sidebar-brand {
-    padding: 10px 20px;
+    padding: 10px 0;
     display: flex;
     align-items: center;
+    justify-content: space-around;
+}
+.slidebar-infoUser {
+    display: flex;
+    margin-left: 10px;
 }
 
 .sidebar-wrapper .sidebar-brand>a {

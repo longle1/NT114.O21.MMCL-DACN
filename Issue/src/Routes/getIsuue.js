@@ -17,7 +17,11 @@ router.get("/:id", currentUserMiddleware, async (req, res) => {
         })
         .populate({
             path: 'comments',
-            select: '-__v'
+            select: '-__v',
+            populate: ({
+                path: 'creator',
+                select: '-__v'
+            })
         })
 
     if (issue) {

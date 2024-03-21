@@ -53,7 +53,15 @@ const issueSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'comments'
         }
-    ]
+    ],
+    createAt: {
+        type: Date,
+        default: Date.now
+    },
+    updateAt: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 const issueModel = mongoose.model('issues', issueSchema)

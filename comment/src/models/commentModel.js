@@ -9,6 +9,14 @@ const commentSchema = new mongoose.Schema({
     content: {
         type: String,
         default: null
+    },
+    timeStamp: {
+        type: Date,
+        default: Date.now
+    },
+    isModified: {
+        type: Boolean,
+        default: false
     }
 })
 

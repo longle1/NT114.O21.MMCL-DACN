@@ -1,7 +1,14 @@
 import { Layout } from 'antd';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { userLoggedInAction } from '../redux/actions/UserAction';
 
 const { Sider, Content } = Layout;
 export const UserLoginTemplate = ({ Component }) => {
+    const dispatch = useDispatch()
+    useEffect(() => {
+        dispatch(userLoggedInAction())
+    }, [])
     return <>
         <Layout style={{ backgroundColor: 'lightgreen' }}>
             <Sider style={{ height: window.innerHeight }} width="60%">

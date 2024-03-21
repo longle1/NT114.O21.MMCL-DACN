@@ -6,6 +6,7 @@ import DrawerReducer from './reducers/DrawerReducer'
 import EditCategoryReducer from './reducers/EditCategoryReducer'
 import UserReducer from './reducers/UserReducer'
 import IssueReducer from './reducers/IssueReducer'
+import LoadingReducer from './reducers/LoadingReducer'
 const rootReducer = combineReducers({
     //reducer khai báo ở đây
     categories: CategoryReducer,
@@ -13,7 +14,8 @@ const rootReducer = combineReducers({
     isOpenDrawer: DrawerReducer,
     editCategory: EditCategoryReducer,
     user: UserReducer,
-    issue: IssueReducer
+    issue: IssueReducer,
+    loading: LoadingReducer
 })
 
 const store = createStore(rootReducer, applyMiddleware(thunk))

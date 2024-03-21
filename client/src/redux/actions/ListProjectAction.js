@@ -1,5 +1,7 @@
 import Axios from "axios"
-import { GET_LIST_PROJECT_API, GET_PROJECT_API } from "../constants/constant"
+import { DISPLAY_LOADING, GET_LIST_PROJECT_API, GET_PROJECT_API, HIDE_LOADING } from "../constants/constant"
+import { delay } from "../../util/Delay"
+import { showNotificationWithIcon } from "../../util/NotificationUtil"
 
 export const ListProjectAction = () => {
     return async dispatch => {
@@ -18,14 +20,21 @@ export const ListProjectAction = () => {
 export const GetProjectAction = (id) => {
     return async dispatch => {
         try {
+            dispatch({
+                type: DISPLAY_LOADING
+            })
             const res = await Axios.get(`https://jira.dev/api/projectmanagement/${id}`)
-            console.log(res.data.data);
             dispatch({
                 type: GET_PROJECT_API,
                 data: res.data.data
             })
+            await delay(1000)
+            localStorage.setItem('projectid', id)
         } catch (errors) {
-            console.log("something went wrong", errors);
+            localStorage.setItem('projectid', null)
         }
+        dispatch({
+            type: HIDE_LOADING
+        })
     }
 }
