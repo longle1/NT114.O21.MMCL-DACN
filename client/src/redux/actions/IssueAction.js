@@ -33,3 +33,43 @@ export const getInfoIssue = (id) => {
         }
     }
 }
+
+
+export const updateInfoIssue = (issueId, projectId, props) => {
+    return async dispatch => {
+        try {
+            await Axios.put(`https://jira.dev/api/issue/update/${issueId}`, { ...props })
+
+            //lấy ra danh sách issue sau khi thay đổi
+            dispatch(getInfoIssue(issueId))
+
+            //cap nhat lai danh sach project
+            dispatch(GetProjectAction(projectId))
+
+            showNotificationWithIcon("success", "Cap nhat thanh cong")
+
+
+        } catch (error) {
+            console.log("error in updateInfoIssue action", error);
+        }
+    }
+}
+
+export const deleteAssignee = (issueId, projectId, userId) => {
+    return async dispatch => {
+        try {
+            await Axios.put(`https://jira.dev/api/issue/delete/assignee/${issueId}`, { userId })
+            //lấy ra danh sách issue sau khi thay đổi
+            dispatch(getInfoIssue(issueId))
+
+            //cap nhat lai danh sach project
+            dispatch(GetProjectAction(projectId))
+
+            showNotificationWithIcon("success", "Xoa thanh cong")
+
+
+        } catch (error) {
+            console.log("error in deleteAssignee action", error);
+        }
+    }
+}

@@ -4,6 +4,7 @@ import { withFormik } from 'formik';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { getListCategories } from '../../redux/actions/CategoryAction';
 import { createProjectAction } from '../../redux/actions/CreateProjectAction';
+import { showNotificationWithIcon } from '../../util/NotificationUtil';
 function Create(props) {
     const handlEditorChange = (content, editor) => {
         setFieldValue('description', content)
@@ -82,11 +83,19 @@ const handleCreateProject = withFormik({
 
     // }),
     handleSubmit: (values, { props, setSubmitting }) => {
-        if (props.userInfo) {
-            values.creator = props.userInfo.id
-            props.dispatch(createProjectAction(values))
-        } else {
-            alert("khong tim thay thong tin ve user hien tai")
+        if (values.nameProject.trim() === '') {
+            showNotificationWithIcon('error', 'Tạo dự án', 'Trường Project name không được bỏ trống')
+        }
+        if (values.description.trim() === '') {
+            showNotificationWithIcon('error', 'Tạo dự án', 'Trường Description không được bỏ trống')
+        }
+        if (values.nameProject.trim() !== '' && values.description.trim() !== '') {
+            if (props.userInfo) {
+                values.creator = props.userInfo.id
+                props.dispatch(createProjectAction(values))
+            } else {
+                showNotificationWithIcon('error', 'Tạo dự án', 'Vui lòng đăng nhập trước khi tạo dự án')
+            }
         }
     },
 

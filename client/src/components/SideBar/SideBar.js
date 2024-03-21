@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './SideBar.css'
 import '../Modal/InfoModal/InfoModal.css'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { drawer_edit_form_action } from '../../redux/actions/DrawerAction';
 import TaskForm from '../Forms/TaskForm';
 import { NavLink, useParams } from 'react-router-dom';
@@ -11,16 +11,15 @@ const SideBar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const dispatch = useDispatch()
 
+    const userInfo = useSelector(state => state.user.userInfo)
+
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
     const closeSidebar = () => {
         setIsSidebarOpen(false);
     };
-
     const { id } = useParams()
-
-
     return (
         <div className={`page-wrapper ${isSidebarOpen ? 'toggled' : ''}`}>
             <a id="show-sidebar" className="btn btn-sm btn-dark" href="#" onClick={toggleSidebar} style={{ zIndex: 9999 }}>
@@ -30,7 +29,17 @@ const SideBar = () => {
                 <div>
                     <div className="sidebar-content">
                         <div className="sidebar-brand">
-                            <a href="/home">Project</a>
+                            <div className='slidebar-infoUser'>
+                                <img src={userInfo?.avatar} style={{ borderRadius: '50%' }} alt='avatar of user' />
+                                <div className='d-flex flex-column'>
+                                    <h4>
+                                        {userInfo?.username}
+                                    </h4>
+                                    <h6>
+                                        {userInfo?.email}
+                                    </h6>
+                                </div>
+                            </div>
                             <div id="close-sidebar" onClick={closeSidebar}>
                                 <i className="fas fa-times text-light" />
                             </div>
@@ -41,9 +50,9 @@ const SideBar = () => {
                                     <span>General</span>
                                 </li>
                                 <li className="sidebar-dropdown font-weight-bold" style={{ fontSize: '17px' }} onClick={() => {
-                                    if(id) {
+                                    if (id) {
                                         dispatch(drawer_edit_form_action(<TaskForm />))
-                                    }else {
+                                    } else {
                                         showNotificationWithIcon('error', 'Create Issue', 'Vui long tham gia vao du an truoc khi tao van de')
                                     }
                                 }}>

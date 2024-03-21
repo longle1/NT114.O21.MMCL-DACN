@@ -4,13 +4,15 @@ import { Button, Input, Space, Table, Popconfirm, Avatar, Popover, AutoComplete,
 import Highlighter from 'react-highlight-words';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { ListProjectAction } from '../../redux/actions/ListProjectAction';
+import { GetProjectAction, ListProjectAction } from '../../redux/actions/ListProjectAction';
 import { drawer_edit_form_action } from '../../redux/actions/DrawerAction';
 import FormEdit from '../Forms/FormEdit';
 import { deleteItemCategory, getItemCategory } from '../../redux/actions/EditCategoryAction';
 import { getUserKeyword, insertUserIntoProject } from '../../redux/actions/UserAction';
 import { NavLink } from 'react-router-dom';
+import { showNotificationWithIcon } from '../../util/NotificationUtil';
 export default function ProjectManager() {
+
     const dispatch = useDispatch()
     const listProject = useSelector(state => state.listProject.listProject)
     const listUser = useSelector(state => state.user.list)
@@ -144,9 +146,17 @@ export default function ProjectManager() {
             dataIndex: 'projectName',
             key: 'projectName',
             render: (text, record, index) => {
-                return <NavLink to={`/projectDetail/${record._id}`} style={{ textDecoration: 'none' }}>
-                    <span>{record.nameProject}</span>
-                </NavLink>
+                if (record.creator._id === userInfo.id || record.members.findIndex(user => user._id === userInfo.id) !== -1) {
+                    return <NavLink to={`/projectDetail/${record._id}`} onClick={() => {
+                        dispatch(GetProjectAction(record._id))
+                    }} style={{ textDecoration: 'none' }}>
+                        <span>{record.nameProject}</span>
+                    </NavLink>
+                }
+
+                return <span onClick={() => {
+                    showNotificationWithIcon('error', '', 'Ban chua tham gia vao trong du an nay')
+                }}>{record.nameProject}</span>
             }
         },
         {

@@ -1,15 +1,117 @@
-import { Avatar, Select } from 'antd';
-import React from 'react'
-import { useSelector } from 'react-redux';
+import { Avatar, Button, Input, InputNumber, Popconfirm, Select } from 'antd';
+import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { Editor } from '@tinymce/tinymce-react';
 import Parser from 'html-react-parser';
+import { Option } from 'antd/es/mentions';
+import { deleteAssignee, updateInfoIssue } from '../../../redux/actions/IssueAction';
+import { createCommentAction, deleteCommentAction, updateCommentAction } from '../../../redux/actions/CommentAction';
+import { showNotificationWithIcon } from '../../../util/NotificationUtil';
+import storeListComments from '../../../util/StoreListComment';
+const { DateTime } = require('luxon');
+const { TextArea } = Input;
 export default function InfoModal() {
     const issueInfo = useSelector(state => state.issue.issueInfo)
+    const projectInfo = useSelector(state => state.listProject.projectInfo)
+    const userInfo = useSelector(state => state.user.userInfo)
+
+    //sử dụng cho phần bình luận
+    //tham số isSubmit thì để khi bấm send thì mới thực hiện duyệt mảng comments
+    const [comment, setComment] = useState({
+        content: '',
+        isSubmit: true,
+    })
+
+
+    const convertTime = (commentTime) => {
+        const diff = DateTime.now().diff(DateTime.fromISO(commentTime), ['minutes', 'hours', 'days', 'months']).toObject();
+
+        if (diff.hours >= 1) {
+            return `${Math.round(diff.hours)} hour ago`
+        } else if (diff.minutes >= 1) {
+            return `${Math.round(diff.minutes)} minutes ago`
+        } if (diff.days >= 1) {
+            return `${Math.round(diff.days)} days ago`
+        } if (diff.months >= 1) {
+            return `${Math.round(diff.months)} months ago`
+        } else {
+            return 'a few second ago'
+        }
+    }
+
+    const renderComments = () => {
+        let listComments = issueInfo?.comments.map((value, index) => {
+            return (<div className='comment d-flex' key={index}>
+                <div className="avatar">
+                    <Avatar src={userInfo?.avatar} size={40} />
+                </div>
+                <div style={{ width: '100%' }}>
+                    <p style={{ marginBottom: 5, fontWeight: 'bold' }}>
+                        {value.creator.username} <span style={{ fontWeight: 'normal' }} className='ml-4'>{value?.isModified ? "Modified " : ''}{convertTime(value?.timeStamp)}</span>
+                    </p>
+                    {editComment.trim() !== '' && editComment === value._id.toString() ? (
+                        <div>
+                            <TextArea value={editContentComment} defaultValue="" onChange={(e) => {
+                                setEditContentComment(e.target.value)
+                            }} autosize={{ minRows: 5, maxRows: 10 }} />
+                            <div>
+                                <Button onClick={() => {
+                                    setEditComment('')
+                                    //gửi lên sự kiện cập nhật comment
+                                    dispatch(updateCommentAction({ commentId: value._id.toString(), content: editContentComment, issueId: issueInfo?._id.toString(), timeStamp: new Date() }))
+                                }} type="primary" className='mt-2 mr-2'>Save</Button>
+                                <Button onClick={() => {
+                                    setEditComment('')
+                                }} className='mt-2'>Cancel</Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div >
+                            <p style={{ marginBottom: 5 }}>
+                                {value.content}
+                            </p>
+                            <div>
+                                <span onClick={() => {
+                                    setEditContentComment(value.content)
+                                    setEditComment(value._id.toString())
+                                }} style={{ color: '#929398', fontWeight: 'bold', cursor: 'pointer' }} className='mr-3'>Edit</span>
+                                <span onClick={() => {
+                                    dispatch(deleteCommentAction({ commentId: value._id.toString(), issueId: issueInfo?._id.toString() }))
+                                }} style={{ color: '#929398', fontWeight: 'bold', cursor: 'pointer' }}>Delete</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>)
+        });
+
+        if (comment.isSubmit) {
+            storeListComments.setComments(listComments)
+        }
+
+        return storeListComments.getComments()
+    }
+
     const issueStatus = [
         { label: 'BACKLOG', value: 0 },
         { label: 'SELECTED FOR DEVELOPMENT', value: 1 },
         { label: 'IN PROGRESS', value: 2 },
         { label: 'DONE', value: 3 }
     ]
+
+    const [editDescription, setEditDescription] = useState(true)
+    //tham số truyền vào sẽ là id của comment khi click vào chỉnh sửa
+    const [editComment, setEditComment] = useState('')
+    const [editContentComment, setEditContentComment] = useState('')
+
+    const [addAssignee, setAddAssignee] = useState(true)
+    const [description, setDescription] = useState('')
+    const handlEditorChange = (content, editor) => {
+        setDescription(content)
+    }
+
+
+    const dispatch = useDispatch()
 
     const renderIssueStatus = (pos) => {
         return issueStatus.map((status) => {
@@ -32,6 +134,21 @@ export default function InfoModal() {
         if (type === 2) {
             return <i className="fa-solid fa-circle-exclamation mr-2" style={{ color: '#cd1317', fontSize: '20px' }} ></i>
         }
+    }
+
+    const renderOptionAssignee = () => {
+        return projectInfo?.members.filter((value, index) => {
+            let isExisted = issueInfo?.assignees?.findIndex((user) => {
+                return user._id === value._id
+            })
+            if (isExisted !== -1) {
+                return false
+            }
+            return true
+        }).map((value, index) => {
+            console.log("Di qua map con", value);
+            return <Option value={value._id}>{value.username}</Option>
+        })
     }
 
     const iTagForPriorities = (priority) => {
@@ -73,9 +190,10 @@ export default function InfoModal() {
                                 placeholder={issueTypeOptions[issueInfo?.issueType]?.label}
                                 defaultValue={issueTypeOptions[issueInfo?.issueType]?.value}
                                 style={{ width: '100%' }}
-                                options={issueTypeOptions}  
+                                options={issueTypeOptions}
+                                disabled={issueInfo?.creator._id !== userInfo.id}
                                 onSelect={(value, option) => {
-
+                                    dispatch(updateInfoIssue(issueInfo?._id, issueInfo?.projectId, { issueType: value }))
                                 }}
                                 name="issueType"
                             />
@@ -99,52 +217,75 @@ export default function InfoModal() {
                         <div className="container-fluid">
                             <div className="row">
                                 <div className="col-8">
-                                    <p className="issue">{issueInfo?.shortSummary}</p>
+                                    <p className="issue" style={{ fontSize: '24px', fontWeight: 'bold' }}>{issueInfo?.shortSummary}</p>
                                     <div className="description">
-                                        <p>Description</p>
-                                        <p>
-                                            {issueInfo?.description}
-                                        </p>
+                                        <p style={{ fontWeight: 'bold', fontSize: '15px' }}>Description</p>
+                                        {editDescription ? (<p onDoubleClick={() => {
+                                            if (issueInfo?.creator._id === userInfo.id) {
+                                                setEditDescription(false)
+                                            }
+                                        }}>
+                                            {issueInfo?.description.trim() !== '' ? Parser(`${issueInfo?.description}`) : <p style={{ color: 'blue' }}>Add Your Description</p>}
+                                        </p>) : (
+                                            <>
+                                                <Editor name='description'
+                                                    apiKey='golyll15gk3kpiy6p2fkqowoismjya59a44ly52bt1pf82oe'
+                                                    init={{
+                                                        plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount linkchecker',
+                                                        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                                                        tinycomments_mode: 'embedded',
+                                                        tinycomments_author: 'Author name',
+                                                        mergetags_list: [
+                                                            { value: 'First.Name', title: 'First Name' },
+                                                            { value: 'Email', title: 'Email' },
+                                                        ],
+                                                        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+                                                    }}
+                                                    initialValue={issueInfo?.description}
+                                                    onEditorChange={handlEditorChange}
+                                                />
+
+                                                <div className='mt-2'>
+                                                    <Button onClick={() => {
+                                                        setEditDescription(true)
+                                                        dispatch(updateInfoIssue(issueInfo?._id, issueInfo?.projectId, { description }))
+                                                    }} type="primary" className='mr-2'>Save</Button>
+                                                    <Button onClick={() => {
+                                                        setEditDescription(true)
+                                                    }}>Cancel</Button>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                     <div className="comment">
                                         <h6>Comment</h6>
-                                        <div className="block-comment" style={{ display: 'flex' }}>
-                                            <div className="avatar">
-                                                <img src={require('../../../assets/img/download (1).jfif')} alt />
-                                            </div>
-                                            <div className="input-comment">
-                                                <input type="text" placeholder="Add a comment ..." />
-                                                <p>
-                                                    <span style={{ fontWeight: 500, color: 'gray' }}>Protip:</span>
-                                                    <span>press
-                                                        <span style={{ fontWeight: 'bold', background: '#ecedf0', color: '#b4bac6' }}>M</span>
-                                                        to comment</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="lastest-comment">
-                                            <div className="comment-item">
-                                                <div className="display-comment" style={{ display: 'flex' }}>
-                                                    <div className="avatar">
-                                                        <img src={require('../../../assets/img/download (1).jfif')} alt />
-                                                    </div>
-                                                    <div>
-                                                        <p style={{ marginBottom: 5 }}>
-                                                            Lord Gaben <span>a month ago</span>
-                                                        </p>
-                                                        <p style={{ marginBottom: 5 }}>
-                                                            Lorem ipsum dolor sit amet, consectetur
-                                                            adipisicing elit. Repellendus tempora ex
-                                                            voluptatum saepe ab officiis alias totam ad
-                                                            accusamus molestiae?
-                                                        </p>
-                                                        <div>
-                                                            <span style={{ color: '#929398' }}>Edit</span>
-                                                            •
-                                                            <span style={{ color: '#929398' }}>Delete</span>
-                                                        </div>
-                                                    </div>
+                                        <div className="block-comment" style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <div className="input-comment d-flex">
+                                                <div className="avatar">
+                                                    <Avatar src={userInfo?.avatar} size={40} />
                                                 </div>
+                                                <div style={{ width: '100%' }}>
+                                                    <Input type='text' placeholder='Add a comment...' defaultValue="" value={comment.content} onChange={(e) => {
+                                                        setComment({
+                                                            content: e.target.value,
+                                                            isSubmit: false
+                                                        })
+                                                    }} />
+                                                    <Button type="primary" onClick={() => {
+                                                        if (comment.content.trim() === '') {
+                                                            showNotificationWithIcon('error', 'Tạo bình luận', 'Vui lòng nhập nội dung trước khi gửi')
+                                                        } else {
+                                                            setComment({
+                                                                content: '',
+                                                                isSubmit: true
+                                                            })
+                                                            dispatch(createCommentAction({ content: comment.content, issueId: issueInfo._id, creator: userInfo?.id }))
+                                                        }
+                                                    }} className='mt-2'>Send</Button>
+                                                </div>
+                                            </div>
+                                            <div className="display-comment mt-2" style={{ display: 'flex', flexDirection: 'column' }}>
+                                                {renderComments()}
                                             </div>
                                         </div>
                                     </div>
@@ -152,36 +293,75 @@ export default function InfoModal() {
                                 <div className="col-4">
                                     <div className="status">
                                         <h6>STATUS</h6>
-                                        <select className="custom-select">
+                                        <select className="custom-select" disabled={issueInfo?.creator._id !== userInfo.id} onChange={(event) => {
+                                            dispatch(updateInfoIssue(issueInfo?._id, issueInfo?.projectId, { issueStatus: event.target.value }))
+                                        }}>
                                             {renderIssueStatus(issueInfo?.issueStatus)}
                                         </select>
                                     </div>
                                     <div className="assignees">
                                         <h6>ASSIGNEES</h6>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
                                             {issueInfo?.assignees?.map((value, index) => {
-                                                return <div style={{ display: 'flex', alignItems: 'center' }} className="item">
+                                                return <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }} className="item mt-2">
                                                     <div className="avatar">
                                                         <Avatar src={value.avatar} />
                                                     </div>
                                                     <p className="name d-flex align-items-center ml-1" style={{ fontWeight: 'bold' }}>
                                                         {value.username}
-                                                        <i className="fa fa-times text-danger" style={{ marginLeft: 5 }} />
+                                                        {issueInfo?.creator._id === userInfo.id ? (
+                                                            <Popconfirm placement="topLeft"
+                                                                title="Delete this user?"
+                                                                description="Are you sure to delete this user from project?"
+                                                                onConfirm={() => {
+                                                                    //dispatch su kien xoa nguoi dung khoi du an
+                                                                    dispatch(deleteAssignee(issueInfo?._id, issueInfo?.projectId, value._id))
+                                                                }} okText="Yes" cancelText="No">
+                                                                <i className="fa fa-times text-danger" style={{ marginLeft: 5 }} />
+                                                            </Popconfirm>
+                                                        ) : <></>}
                                                     </p>
                                                 </div>
                                             })}
-                                            <div style={{ display: 'flex', alignItems: 'center', width: '100px' }}>
-                                                <p className='text-primary' style={{ fontSize: '12px', margin: '0px' }}><i className="fa fa-plus" style={{ marginRight: 5 }} />Add more</p>
-                                            </div>
+                                            {
+                                                issueInfo?.creator._id === userInfo.id ? (
+                                                    <div style={{ display: 'flex', alignItems: 'center', width: '100px' }}>
+
+                                                        <span onClick={() => {
+                                                            setAddAssignee(false)
+                                                        }} className='text-primary mt-2 mb-2' style={{ fontSize: '12px', margin: '0px', cursor: 'pointer' }}>
+                                                            <i className="fa fa-plus" style={{ marginRight: 5 }} />Add more
+                                                        </span>
+                                                    </div>
+                                                ) : <></>
+                                            }
+
                                         </div>
+                                        {!addAssignee ? (
+                                            <div>
+                                                <Select
+                                                    style={{ width: '200px' }}
+                                                    placeholder="Select a person"
+                                                    optionFilterProp="children"
+                                                    disabled={issueInfo?.creator._id !== userInfo.id}
+                                                    onSelect={(value, option) => {
+                                                        setAddAssignee(true)
+                                                        dispatch(updateInfoIssue(issueInfo?._id, issueInfo?.projectId, { assignees: value }))
+                                                    }}
+                                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                                >
+                                                    {renderOptionAssignee()}
+                                                </Select>
+                                            </div>
+                                        ) : <></>}
                                     </div>
                                     <div className="reporter">
-                                        <h6>REPORTER</h6>
+                                        <h6>CREATOR</h6>
                                         <div style={{ display: 'flex' }} className="item">
                                             <div className="avatar">
                                                 <Avatar src={issueInfo?.creator.avatar} />
                                             </div>
-                                            <p className="name d-flex align-items-center ml-1" style={{ fontWeight: 'bold' }}>
+                                            <p className="name d-flex align-items-center ml-    1" style={{ fontWeight: 'bold' }}>
                                                 {issueInfo?.creator.username}
                                             </p>
                                         </div>
@@ -193,8 +373,9 @@ export default function InfoModal() {
                                             placeholder={priorityTypeOptions[issueInfo?.priority]?.label}
                                             defaultValue={priorityTypeOptions[issueInfo?.priority]?.value}
                                             options={priorityTypeOptions}
+                                            disabled={issueInfo?.creator._id !== userInfo.id}
                                             onSelect={(value, option) => {
-
+                                                dispatch(updateInfoIssue(issueInfo?._id, issueInfo?.projectId, { priority: value }))
                                             }}
                                             name="priority"
                                         />
@@ -215,18 +396,31 @@ export default function InfoModal() {
                                                     <p className="logged">4h logged</p>
                                                     <p className="estimate-time">12h estimated</p>
                                                 </div>
+
+                                                <div>
+                                                    <div className='row'>
+                                                        <div className='col-6 p-0'>
+                                                            <label>Time spent</label>
+                                                            <InputNumber value={0} name="timeSpent" min={0} />
+                                                        </div>
+                                                        <div className='col-6 p-0 text-center'>
+                                                            <label>Time remaining</label>
+                                                            <InputNumber value={0} min={0} defaultValue={0} name="timeRemaining" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div style={{ color: '#929398' }}>Create at a month ago</div>
-                                    <div style={{ color: '#929398' }}>Update at a few seconds ago</div>
+                                    <div style={{ color: '#929398' }}>Create at {convertTime(issueInfo?.creatAt)}</div>
+                                    <div style={{ color: '#929398' }}>{issueInfo?.creatAt !== issueInfo?.updateAt ? `Update at ${convertTime(issueInfo?.updateAt)}` : ""}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
 
     )
 }

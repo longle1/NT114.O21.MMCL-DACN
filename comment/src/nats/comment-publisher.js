@@ -1,4 +1,4 @@
-const natsWrapper = require("../../nats-wrapper")
+const natsWrapper = require("../nats-wrapper")
 
 const commentPublisher = (data, type) => {
     data = JSON.stringify(data)

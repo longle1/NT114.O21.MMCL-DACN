@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: longle1/auth
+          image: longle2003/auth
           env:
             - name: JWT_KEY
               valueFrom:

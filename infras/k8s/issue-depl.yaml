@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: issue
-          image: longle1/issue
+          image: longle2003/issue
           env:
             - name: JWT_KEY
               valueFrom:

@@ -7,7 +7,7 @@ const authCreatedListener = () => {
 
     const subscription = natsWrapper.client.subscribe('auth:created', options)
 
-    subscription.on('message',async  (msg) => {
+    subscription.on('message', async (msg) => {
         if (typeof msg.getData() === 'string') {
             console.log(`Received event auth:created with sequence number: ${msg.getSequence()}`);
             const parseData = JSON.parse(msg.getData())

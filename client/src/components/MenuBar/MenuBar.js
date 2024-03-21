@@ -13,7 +13,7 @@ export default function MenuBar() {
                         <div className="sidebar-content">
                             <ul className="lists p-0">
                                 <li className="list">
-                                    <NavLink to="/dashboard" className="nav-link">
+                                    <NavLink to={`/projectDetail/${localStorage.getItem('projectid')}`} className="nav-link">
                                         <i className="fa fa-home mr-3"></i>
                                         <span className="link">Dashboard</span>
                                     </NavLink>
@@ -26,14 +26,12 @@ export default function MenuBar() {
                                 </li>
                                 <li className="list">
                                     <NavLink to="/manager" className="nav-link">
-                                    <i className="fa fa-cog mr-3"></i>
+                                        <i className="fa fa-cog mr-3"></i>
                                         <span className="link">Project management</span>
                                     </NavLink>
                                 </li>
                                 <hr />
-
-
-                                <li className="list">
+                                {/* <li className="list">
                                     <a href="#" className="nav-link">
                                         <i className="bx bx-bell icon" />
                                         <span className="link">Notifications</span>
@@ -62,7 +60,7 @@ export default function MenuBar() {
                                         <i className="bx bx-folder-open icon" />
                                         <span className="link">Files</span>
                                     </a>
-                                </li>
+                                </li> */}
                             </ul>
                         </div>
                     </div>

@@ -9,7 +9,7 @@ router.get('/:id', async (req, res) => {
     const currentProject = await projectModel.findById(id)
         .populate({
             path: 'members',
-            select: '-__v -avatar'
+            select: '-__v'
         })
         .populate({
             path: 'issues',
@@ -20,7 +20,6 @@ router.get('/:id', async (req, res) => {
             }
         })
 
-    const issue = await issueModel.find({})
     if (!currentProject) {
         res.status(400).json({
             message: "Project khong ton tai"

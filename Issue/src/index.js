@@ -7,6 +7,8 @@ const errorHandler = require("./Middlewares/Error-handler")
 const natsWrapper = require("./nats-wrapper")
 const authCreatedListener = require("./nats/listener/auth-created-listener")
 const commentCreatedListener = require("./nats/listener/comment-created-listener")
+const commentDeletedListener = require("./nats/listener/comment-deleted-listener")
+const commentUpdatedListener = require("./nats/listener/comment-updated-listener")
 
 const app = express()
 app.use(bodyParser.json())
@@ -24,6 +26,7 @@ app.use('/api/issue', require('./Routes/getIsuue'))
 app.use('/api/issue', require('./Routes/delete'))
 app.use('/api/issue', require('./Routes/insertIssue'))
 app.use('/api/issue', require('./Routes/update'))
+app.use('/api/issue', require('./Routes/deleteAssignee'))
 
 async function connectToNats() {
     try {
@@ -38,6 +41,8 @@ async function connectToNats() {
 
         authCreatedListener()
         commentCreatedListener()
+        commentDeletedListener()
+        commentUpdatedListener()
 
         console.log("Ket noi thanh cong toi nats");
     } catch (error) {
