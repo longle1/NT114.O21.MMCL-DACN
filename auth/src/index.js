@@ -56,6 +56,5 @@ connectToMongoDb()
 app.use(errorHandler)
 
 app.listen(4000, () => {
-    console.log("Cap nhat moi");
     console.log("Listening on port 4000");
 })
