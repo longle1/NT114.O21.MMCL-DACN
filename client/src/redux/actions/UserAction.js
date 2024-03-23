@@ -7,7 +7,6 @@ export const getUserKeyword = (keyword) => {
     return async dispatch => {
         try {
             const res = await Axios.get(`https://jira.dev/api/projectmanagement/listuser?keyword=${keyword}`)
-            console.log('data keyword', res);
             dispatch({
                 type: GET_USER_BY_KEYWORD_API,
                 list: res.data.data
@@ -21,11 +20,9 @@ export const getUserKeyword = (keyword) => {
 export const insertUserIntoProject = (props) => {
     return async dispatch => {
         try {
-            console.log(props);
             const res = await Axios.post(`https://jira.dev/api/projectmanagement/insert`, { props })
-
             dispatch(ListProjectAction(res.data.data))
-                showNotificationWithIcon('success', 'Insert user', 'Successfully inserted in this project')
+            showNotificationWithIcon('success', 'Insert user', 'Successfully inserted in this project')
         } catch (error) {
             showNotificationWithIcon('error', 'Insert user', 'User already in this project')
             console.log(error);
@@ -63,11 +60,11 @@ export const userLoginAction = (email, password) => {
                 password
             })
                 .then(res => {
-                    showNotificationWithIcon("success", "Login", "Logged in success")
+                    showNotificationWithIcon("success", "Đăng nhập", "Đăng nhập thành công")
                     loggedIn = true
                 })
                 .catch(err => {
-                    showNotificationWithIcon("error", "Login", "Logged in failed")
+                    showNotificationWithIcon("error", "Đăng nhập", "Đăng nhập thất bại")
                 })
 
             if (loggedIn) {
@@ -86,11 +83,9 @@ export const userLoginAction = (email, password) => {
         }
     }
 }
-
 export const userLoggedInAction = () => {
     return async dispatch => {
         const res = await Axios.get('https://jira.dev/api/users/currentuser')
-
         if (!res.data.currentUser) {
             dispatch({
                 type: USER_LOGGED_IN,
@@ -98,7 +93,6 @@ export const userLoggedInAction = () => {
                 userInfo: null
             })
         } else {
-            console.log(res.data.currentUser);
             dispatch({
                 type: USER_LOGGED_IN,
                 status: true,

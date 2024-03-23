@@ -7,6 +7,7 @@ const router = express.Router()
 
 router.post("/create", currentUserMiddleware, async (req, res) => {
     try {
+
         const newIssue = await issueModel.create(req.body)
 
         const issueCopy = {
@@ -17,7 +18,8 @@ router.post("/create", currentUserMiddleware, async (req, res) => {
             positionList: newIssue.positionList,
             issueType: newIssue.issueType,
             issueStatus: newIssue.issueStatus,
-            assignees: newIssue.assignees
+            assignees: newIssue.assignees,
+            creator: newIssue.creator
         }
 
         issuePublisher(issueCopy, 'issue:created')

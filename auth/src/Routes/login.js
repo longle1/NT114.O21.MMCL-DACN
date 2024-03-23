@@ -17,6 +17,8 @@ router.post("/login", async (req, res, next) => {
                 const userJwt = jwt.sign({
                     id: currentUser.id,
                     email: currentUser.email,
+                    avatar: currentUser.avatar,
+                    username: currentUser.username
                 }, process.env.JWT_KEY)
 
                 //luu tru jwt trong cookie

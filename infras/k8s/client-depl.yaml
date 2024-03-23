@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: longle1/client
+          image: longle2003/client
 
 ---
 

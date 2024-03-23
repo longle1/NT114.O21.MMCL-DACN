@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: projectmanagement
-          image: longle1/projectmanagement
+          image: longle2003/projectmanagement
           env:
             - name: JWT_KEY
               valueFrom:

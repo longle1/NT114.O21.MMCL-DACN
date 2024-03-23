@@ -6,6 +6,7 @@ const cookieSession = require("cookie-session")
 const cors = require('cors')
 const errorHandler = require("./Middlewares/Error-handler")
 const natsWrapper = require("./nats-wrapper")
+const commentDeletedListener = require("./nats/comment-deleted-listeners")
 
 const app = express()
 
@@ -19,6 +20,10 @@ app.use(cookieSession({
 app.use(bodyParser.json())
 app.use(cors())
 
+app.use('/api/comments', require("./Routes/create"))
+app.use('/api/comments', require("./Routes/update"))
+app.use('/api/comments', require("./Routes/delete"))
+
 async function connectToNats() {
     try {
         await natsWrapper.connect(process.env.NATS_CLUSTER_ID, process.env.NATS_CLIENT_ID, process.env.NATS_URL)
@@ -26,6 +31,8 @@ async function connectToNats() {
             console.log('NATs connection closed');
             process.exit()
         })
+
+        commentDeletedListener()
 
         process.on('SIGINT', () => { natsWrapper.client.close() })
         process.on('SIGTERM', () => { natsWrapper.client.close() })

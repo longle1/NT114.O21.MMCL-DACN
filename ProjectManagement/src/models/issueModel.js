@@ -6,6 +6,10 @@ const issueSchema = new mongoose.Schema({
         type: Number,
         default: null
     },
+    creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    },
     shortSummary: {
         type: String,
         default: null

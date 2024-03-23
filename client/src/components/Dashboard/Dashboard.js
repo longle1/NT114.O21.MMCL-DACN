@@ -1,21 +1,76 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import DrawerHOC from '../../HOC/DrawerHOC'
-import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { GetProjectAction } from '../../redux/actions/ListProjectAction';
-import { Avatar } from 'antd';
+import { AutoComplete, Avatar, Button, Popover, Table } from 'antd';
 import { getInfoIssue } from '../../redux/actions/IssueAction';
+import { showNotificationWithIcon } from '../../util/NotificationUtil';
+import { getUserKeyword, insertUserIntoProject } from '../../redux/actions/UserAction';
+import { GetProjectAction } from '../../redux/actions/ListProjectAction';
+import { deleteUserInProject } from '../../redux/actions/CreateProjectAction';
+import { DeleteOutlined } from '@ant-design/icons';
+import Search from 'antd/es/input/Search';
 export default function Dashboard() {
-    const { id } = useParams()
     const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    //sử dụng hiển thị tất cả issue hoặc chỉ các issue liên quan tới user
+    const [type, setType] = useState(0)
 
     const projectInfo = useSelector(state => state.listProject.projectInfo)
+    const [value, setValue] = useState('')
+    const listUser = useSelector(state => state.user.list)
+    const userInfo = useSelector(state => state.user.userInfo)
+    //su dung cho debounce search
+    const search = useRef(null)
 
     useEffect(() => {
-        if (id) {
-            dispatch(GetProjectAction(id))
+        if (projectInfo === null || localStorage.getItem('projectid') === "1") {
+            localStorage.setItem('projectid', null)
+            showNotificationWithIcon('error', 'Vui lòng tham gia vào dự án trước')
+            navigate('/manager')
+        } else {
+            //set localstorage để khi user vào web thì sẽ vào thẳng dự án hiện tại
+            localStorage.setItem('projectid', projectInfo?._id)
         }
     }, [])
+
+    //su dung cho truong hien thi member
+    const memberColumns = [
+        {
+            title: 'Avatar',
+            dataIndex: 'avatar',
+            key: 'avatar',
+            render: (text, record, index) => {
+                return <Avatar src={text} size={30} alt={index} />
+            }
+        },
+        {
+            title: 'Username',
+            dataIndex: 'username',
+            key: 'username',
+            render: (text, record, index) => {
+                return <span>{text}</span>
+            }
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            dataIndex: '_id',
+            render: (text, record, index) => {
+                if (projectInfo?.creator.toString() === userInfo.id) {
+                    return text !== userInfo.id ? (
+                        <Button type="primary" onClick={async () => {
+                            await dispatch(deleteUserInProject(text, projectInfo?._id))
+
+                            dispatch(GetProjectAction(projectInfo?._id, ""))
+                        }} icon={<DeleteOutlined />} size='large' />
+                    ) : <></>
+                }
+                return <></>
+            }
+        }
+    ];
 
     const renderIssueType = (type) => {
         //0 la story
@@ -50,9 +105,41 @@ export default function Dashboard() {
         }
     }
 
-    const renderIssue = (position) => {
-        return projectInfo?.issues?.map((value, index) => {
-            if (value.issueStatus === position) {
+    const countEleStatus = (position, type) => {
+        if (type === 1) {
+            return projectInfo?.issues?.filter(issue => {
+                if (issue.assignees.findIndex(value => value._id === userInfo.id) !== -1) {
+                    return true
+                } else if (issue.creator._id === userInfo.id) {
+                    return true
+                }
+                return false
+            }).filter(value => value.issueStatus === position).length
+        }
+        return projectInfo?.issues?.filter(value => value.issueStatus === position).length
+    }
+
+    //type là loại được chọn để hiển thị (tất cả vấn đề / các vấn đề thuộc user)
+    const renderIssue = (position, type) => {
+        let listIssues = projectInfo?.issues
+        if (type === 1) {
+            listIssues = listIssues?.filter(issue => {
+                if (issue.assignees.findIndex(value => value._id === userInfo.id) !== -1) {
+                    return true
+                } else if (issue.creator._id === userInfo.id) {
+                    return true
+                }
+                return false
+            })
+        }
+        return listIssues?.filter(issue => {
+            if (issue.issueStatus === position) {
+                return true
+            }
+            return false
+        })
+            .sort((issue1, issue2) => issue1.priority - issue2.priority)
+            .map((value, index) => {
                 return (<li className="list-group-item" data-toggle="modal" data-target="#infoModal" style={{ cursor: 'pointer' }} onClick={() => {
                     dispatch(getInfoIssue(value._id))
                 }}>
@@ -76,15 +163,12 @@ export default function Dashboard() {
                                         }
                                         return null
                                     })
-
                                 }
                             </div>
                         </div>
                     </div>
                 </li>)
-            }
-            return null
-        })
+            })
     }
 
     return (
@@ -94,7 +178,6 @@ export default function Dashboard() {
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb" style={{ backgroundColor: 'white' }}>
                         <li className="breadcrumb-item">Project</li>
-                        <li className="breadcrumb-item">CyberLearn</li>
                         <li className="breadcrumb-item active" aria-current="page">
                             Dashboard
                         </li>
@@ -103,7 +186,7 @@ export default function Dashboard() {
             </div>
             <div className='title'>
                 <h3>Dashboard</h3>
-                <a href="https://github.com/oldboyxx/jira_clone" target="_blank" style={{ textDecoration: 'none' }}>
+                <a href="https://github.com/longle1/NT114.O21.MMCL-DACN" target="_blank" style={{ textDecoration: 'none' }}>
                     <button className="btn btn-light btn-git">
                         <i className="fab fa-github mr-2"></i>
                         <div>Github Repo</div>
@@ -112,54 +195,103 @@ export default function Dashboard() {
             </div>
             <div className="info" style={{ display: 'flex' }}>
                 <div className="search-block">
-                    <input className="search" />
-                    <i className="fa fa-search" />
+                    <Search
+                        placeholder="input search text"
+                        style={{ width: 300 }}
+                        onSearch={value => {
+                            dispatch(GetProjectAction(projectInfo?._id, value))
+                        }}
+                    />
                 </div>
                 <div className="avatar-group" style={{ display: 'flex' }}>
-                    <div className="avatar">
-                        <img src="./assets/img/download (1).jfif" alt="1" />
-                    </div>
-                    <div className="avatar">
-                        <img src="./assets/img/download (2).jfif" alt="1" />
-                    </div>
-                    <div className="avatar">
-                        <img src="./assets/img/download (3).jfif" alt="1" />
-                    </div>
+                    {projectInfo?.members?.map((value, index) => {
+                        return <div className="avatar">
+                            <Popover content={() => {
+                                return <Table columns={memberColumns} rowKey={index} dataSource={projectInfo?.members} />
+                            }} title="Members">
+                                <Avatar src={value.avatar} key={index} />
+                            </Popover>
+                        </div>
+                    })}
+
+                    <Popover placement="right" title="Add User" content={() => {
+                        return <AutoComplete
+                            style={{ width: '100%' }}
+                            onSearch={(value) => {
+                                //kiem tra gia tri co khac null khong, khac thi xoa
+                                if (search.current) {
+                                    clearTimeout(search.current)
+                                }
+                                search.current = setTimeout(() => {
+                                    dispatch(getUserKeyword(value))
+                                }, 500)
+                            }}
+                            value={value}
+                            onChange={(value) => {
+                                setValue(value)
+                            }}
+                            defaultValue=''
+                            options={listUser?.reduce((newListUser, user) => {
+                                if (user._id !== userInfo.id) {
+                                    return [...newListUser, { label: user.username, value: user._id }]
+                                }
+                                return newListUser
+                            }, [])}
+                            onSelect={async (value, option) => {
+                                setValue(option.label)
+                                await dispatch(insertUserIntoProject({
+                                    project_id: projectInfo?._id,  //id cua project
+                                    user_id: value   //id cua username
+                                }))
+
+                                await dispatch(GetProjectAction(projectInfo?._id, ""))
+                            }}
+                            placeholder="input here"
+                        />
+                    }} trigger="click">
+                        <Avatar style={{ backgroundColor: '#87d068' }}>
+                            <i className="fa fa-plus"></i>
+                        </Avatar>
+                    </Popover>
                 </div>
-                <div style={{ marginLeft: 20 }} className="text">Only My Issues</div>
-                <div style={{ marginLeft: 20 }} className="text">Recently Updated</div>
+                <Button type="primary" onClick={() => {
+                    setType(0)
+                }} className=' ml-2 mr-3'>All issues</Button>
+                <Button onClick={() => {
+                    setType(1)
+                }}>Only my issues</Button>
             </div>
             <div className="content" style={{ display: 'flex' }}>
-                <div className="card" style={{ width: '17rem', height: '25rem' }}>
+                <div className="card" style={{ width: '20rem', height: '30rem', overflow: 'auto', scrollbarWidth: 'none', fontWeight: 'bold' }}>
                     <div className="card-header">
-                        BACKLOG 3
+                        BACKLOG {countEleStatus(0, type)}
                     </div>
                     <ul className="list-group list-group-flush">
-                        {renderIssue(0)}
+                        {renderIssue(0, type)}
                     </ul>
                 </div>
-                <div className="card" style={{ width: '17rem', height: '25rem' }}>
+                <div className="card" style={{ width: '20rem', height: '30rem', overflow: 'auto', scrollbarWidth: 'none', fontWeight: 'bold' }}>
                     <div className="card-header">
-                        SELECTED FOR DEVELOPMENT 2
+                        SELECTED FOR DEVELOPMENT {countEleStatus(1, type)}
                     </div>
                     <ul className="list-group list-group-flush">
-                        {renderIssue(1)}
+                        {renderIssue(1, type)}
                     </ul>
                 </div>
-                <div className="card" style={{ width: '17rem', height: '25rem' }}>
+                <div className="card" style={{ width: '20rem', height: '30rem', overflow: 'auto', scrollbarWidth: 'none', fontWeight: 'bold' }}>
                     <div className="card-header">
-                        IN PROGRESS 2
+                        IN PROGRESS {countEleStatus(2, type)}
                     </div>
                     <ul className="list-group list-group-flush">
-                        {renderIssue(2)}
+                        {renderIssue(2, type)}
                     </ul>
                 </div>
-                <div className="card" style={{ width: '17rem', height: '25rem' }}>
+                <div className="card" style={{ width: '20rem', height: '30rem', overflow: 'auto', scrollbarWidth: 'none', fontWeight: 'bold' }}>
                     <div className="card-header">
-                        DONE 3
+                        DONE {countEleStatus(3, type)}
                     </div>
                     <ul className="list-group list-group-flush">
-                        {renderIssue(3)}
+                        {renderIssue(3, type)}
                     </ul>
                 </div>
             </div>

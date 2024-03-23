@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { withFormik } from 'formik'
 import * as Yup from "yup";
-import { connect, useDispatch, useSelector } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import { NavLink, Navigate } from 'react-router-dom';
-import { userLoggedInAction, userLoginAction } from '../../redux/actions/UserAction';
+import { userLoginAction } from '../../redux/actions/UserAction';
 function Login(props) {
     const {
         errors,
@@ -11,13 +11,6 @@ function Login(props) {
         handleSubmit,
     } = props;
     var status = useSelector(state => state.user.status)
-    const dispatch = useDispatch()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => {
-        dispatch(userLoggedInAction())
-    }, [])
-
     return (
         <>
             {

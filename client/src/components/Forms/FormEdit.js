@@ -1,7 +1,6 @@
 import { Editor } from '@tinymce/tinymce-react'
 import { withFormik } from 'formik'
 import React, { useEffect } from 'react'
-import * as Yup from "yup";
 import { connect, useDispatch, useSelector } from 'react-redux'
 import { submit_edit_form_action } from '../../redux/actions/DrawerAction';
 import { getListCategories } from '../../redux/actions/CategoryAction';
@@ -94,11 +93,7 @@ const handleSubmitForm = withFormik({
             category: props.list?.category?._id,
         }
     },
-    validationSchema: Yup.object().shape({
-
-    }),
     handleSubmit: (values, { props, setSubmitting }) => {
-        console.log(values);
         props.dispatch(updateItemCategory(values))
     },
 

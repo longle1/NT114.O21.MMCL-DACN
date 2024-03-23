@@ -12,10 +12,10 @@ export const createIssue = (props) => {
             await Axios.put('https://jira.dev/api/projectmanagement/insert/issue', { project_id: props.projectId, issue_id: res.data?.data._id })
 
             //cap nhat lai thong tin ve project
-            dispatch(GetProjectAction(props.projectId))
-            showNotificationWithIcon('success', '', 'Tao thanh cong')
+            dispatch(GetProjectAction(props.projectId, ""))
+            showNotificationWithIcon('success', 'Tạo mới', 'Tạo thành công vấn đề')
         } catch (error) {
-            showNotificationWithIcon('error', '', 'Tao that bai')
+            showNotificationWithIcon('error', 'Tạo mới', 'Tạo mới thất bại')
         }
     }
 }
@@ -30,6 +30,62 @@ export const getInfoIssue = (id) => {
             })
         } catch (error) {
             console.log("error in getInfoIssue action", error);
+        }
+    }
+}
+
+
+export const updateInfoIssue = (issueId, projectId, props) => {
+    return async dispatch => {
+        try {
+            await Axios.put(`https://jira.dev/api/issue/update/${issueId}`, { ...props })
+
+            //lấy ra danh sách issue sau khi thay đổi
+            dispatch(getInfoIssue(issueId))
+
+            //cap nhat lai danh sach project
+            dispatch(GetProjectAction(projectId, ""))
+
+            showNotificationWithIcon("success", "Cập nhật", "Cập nhật vấn đề thành công")
+
+
+        } catch (error) {
+            console.log("error in updateInfoIssue action", error);
+        }
+    }
+}
+
+export const deleteAssignee = (issueId, projectId, userId) => {
+    return async dispatch => {
+        try {
+            await Axios.put(`https://jira.dev/api/issue/delete/assignee/${issueId}`, { userId })
+            //lấy ra danh sách issue sau khi thay đổi
+            dispatch(getInfoIssue(issueId))
+
+            //cap nhat lai danh sach project
+            dispatch(GetProjectAction(projectId, ""))
+
+            showNotificationWithIcon("success", "Xóa", "Xóa thành công người dùng khỏi dự án")
+
+
+        } catch (error) {
+            console.log("error in deleteAssignee action", error);
+        }
+    }
+}
+
+export const deleteIssue = (issueId) => {
+    return async dispatch => {
+        try {
+            await Axios.delete(`https://jira.dev/api/issue/delete/${issueId}`)
+            //lấy ra danh sách issue sau khi thay đổi
+            dispatch(getInfoIssue(issueId))
+
+            showNotificationWithIcon("success", "Delete", "Successfully deleted this issue")
+
+
+        } catch (error) {
+            console.log("error in deleteAssignee action", error);
         }
     }
 }

@@ -7,7 +7,7 @@ build:
   local:
     push: false
   artifacts:
-    - image: longle1/auth
+    - image: longle2003/auth
       context: auth
       docker:
         dockerfile: Dockerfile
@@ -15,7 +15,7 @@ build:
         manual:
           - dest: .
             src: 'src/**/*.js'
-    - image: longle1/client
+    - image: longle2003/client
       context: client
       docker:
         dockerfile: Dockerfile
@@ -23,7 +23,7 @@ build:
         manual:
           - dest: .
             src: 'src/**/*.js'
-    - image: longle1/comment
+    - image: longle2003/comment
       context: comment
       docker:
         dockerfile: Dockerfile
@@ -31,7 +31,7 @@ build:
         manual:
           - dest: .
             src: 'src/**/*.js'
-    - image: longle1/issue
+    - image: longle2003/issue
       context: issue
       docker:
         dockerfile: Dockerfile
@@ -39,7 +39,7 @@ build:
         manual:
           - dest: .
             src: 'src/**/*.js'
-    - image: longle1/projectmanagement
+    - image: longle2003/projectmanagement
       context: projectmanagement
       docker:
         dockerfile: Dockerfile
@@ -47,7 +47,7 @@ build:
         manual:
           - dest: .
             src: 'src/**/*.js'
-    - image: longle1/category
+    - image: longle2003/category
       context: category
       docker:
         dockerfile: Dockerfile

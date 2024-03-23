@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: comment
-          image: longle1/comment
+          image: longle2003/comment
           env:
             - name: JWT_KEY
               valueFrom:
