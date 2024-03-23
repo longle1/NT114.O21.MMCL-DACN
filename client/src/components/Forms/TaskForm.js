@@ -1,9 +1,8 @@
 import { Editor } from '@tinymce/tinymce-react'
 import { Input, InputNumber, Select, Slider } from 'antd'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { GetProjectAction } from '../../redux/actions/ListProjectAction';
 import { withFormik } from 'formik';
 import { createIssue } from '../../redux/actions/IssueAction';
 import { submit_edit_form_action } from '../../redux/actions/DrawerAction';
@@ -14,6 +13,7 @@ function TaskForm(props) {
         timeSpent: 0,
         timeRemaining: 0
     })
+    const userInfo = useSelector(state => state.user.userInfo)
 
     const handlEditorChange = (content, editor) => {
         setFieldValue('description', content)
@@ -71,7 +71,6 @@ function TaskForm(props) {
         if (id !== undefined) {
             //thiet lap id project cho withformik
             setFieldValue('projectId', id)
-            dispatch(GetProjectAction(id))
             // //submit sự kiện để gửi lên form
             dispatch(submit_edit_form_action(handleSubmit))
         }
@@ -139,7 +138,7 @@ function TaskForm(props) {
                         <label>Assignees</label>
                         <Select mode={'multiple'}
                             style={{ width: '100%' }}
-                            options={props.projectInfo?.members?.map(value => {
+                            options={props.projectInfo?.members?.filter(value => value._id !== userInfo.id).map(value => {
                                 return { label: value.username, value: value._id }
                             })}
                             placeholder={'Select Item...'}
@@ -154,7 +153,7 @@ function TaskForm(props) {
                         <label>Time Tracking</label>
                         <Slider defaultValue={0} value={timeTracking.timeSpent} max={timeTracking.timeRemaining + timeTracking.timeSpent} />
                         <div className='row'>
-                            <span className='col-6 text-left'>{timeTracking.timeRemaining} logged</span>
+                            <span className='col-6 text-left'>{timeTracking.timeSpent} logged</span>
                             <span className='col-6 text-right'>{timeTracking.timeRemaining} remaining</span>
                         </div>
                     </div>
@@ -171,24 +170,23 @@ function TaskForm(props) {
                         <div className='row'>
                             <div className='col-6  pr-4'>
                                 <label>Time spent</label>
-                                <InputNumber value={timeTracking.timeSpent} name="timeSpent" min={0} defaultValue={0} onChange={(value) => {
+                                <InputNumber value={timeTracking.timeSpent} name="timeSpent" min={0} onChange={(value) => {
                                     setTimeTracking({
                                         ...timeTracking,
                                         timeSpent: value
                                     })
 
-                                    setFieldValue('timeSpent', timeTracking.timeSpent)
+                                    setFieldValue('timeSpent', value)
                                 }} />
                             </div>
                             <div className='col-6 p-0'>
                                 <label>Time remaining</label>
-                                <InputNumber value={timeTracking.timeRemaining} min={0} defaultValue={0} name="timeRemaining" onChange={(value) => {
+                                <InputNumber value={timeTracking.timeRemaining} min={0} name="timeRemaining" onChange={(value) => {
                                     setTimeTracking({
                                         ...timeTracking,
                                         timeRemaining: value
                                     })
-
-                                    setFieldValue('timeRemaining', timeTracking.timeRemaining)
+                                    setFieldValue('timeRemaining', value)
                                 }} />
                             </div>
                         </div>
@@ -218,6 +216,7 @@ const handleSubmitTaskForm = withFormik({
         }
     },
     handleSubmit: (values, { props, setSubmitting }) => {
+        console.log(values);
         let checkSubmit = true
         if(values.shortSummary.trim() === '') {
             checkSubmit = false
@@ -238,7 +237,6 @@ const handleSubmitTaskForm = withFormik({
         if(checkSubmit) {
             props.dispatch(createIssue(values))
         }
-        
     },
 
     displayName: 'BasicForm',

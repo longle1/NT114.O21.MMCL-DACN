@@ -32,6 +32,7 @@ app.use('/api/projectmanagement', require("./Routes/update"))
 app.use('/api/projectmanagement', require("./Routes/delete"))
 app.use('/api/projectmanagement', require("./Routes/getProject"))
 app.use('/api/projectmanagement', require("./Routes/insertIssue"))
+app.use('/api/projectmanagement', require("./Routes/deleteUser"))
 
 async function connectToMongoDb() {
     try {

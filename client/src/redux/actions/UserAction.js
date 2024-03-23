@@ -21,7 +21,6 @@ export const insertUserIntoProject = (props) => {
     return async dispatch => {
         try {
             const res = await Axios.post(`https://jira.dev/api/projectmanagement/insert`, { props })
-
             dispatch(ListProjectAction(res.data.data))
             showNotificationWithIcon('success', 'Insert user', 'Successfully inserted in this project')
         } catch (error) {
@@ -61,11 +60,11 @@ export const userLoginAction = (email, password) => {
                 password
             })
                 .then(res => {
-                    showNotificationWithIcon("success", "Login", "Logged in success")
+                    showNotificationWithIcon("success", "Đăng nhập", "Đăng nhập thành công")
                     loggedIn = true
                 })
                 .catch(err => {
-                    showNotificationWithIcon("error", "Login", "Logged in failed")
+                    showNotificationWithIcon("error", "Đăng nhập", "Đăng nhập thất bại")
                 })
 
             if (loggedIn) {

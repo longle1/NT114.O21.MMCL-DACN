@@ -21,7 +21,10 @@ router.get("/:id", currentUserMiddleware, async (req, res) => {
             populate: ({
                 path: 'creator',
                 select: '-__v'
-            })
+            }),
+            options: {
+                sort: { timeStamp: -1 }
+            }
         })
 
     if (issue) {
@@ -30,7 +33,7 @@ router.get("/:id", currentUserMiddleware, async (req, res) => {
             data: issue
         })
     }
-    return res.status(4000).json({
+    return res.status(400).json({
         message: "Lay that bai",
         data: null
     })

@@ -18,7 +18,7 @@ const issueCreatedListener = () => {
             }
         })
     } catch (error) {
-
+        
     }
 }
 

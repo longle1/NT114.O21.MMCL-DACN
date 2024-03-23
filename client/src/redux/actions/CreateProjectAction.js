@@ -13,11 +13,22 @@ export const createProjectAction = (data) => {
             await delay(2000)
             await Axios.post("https://jira.dev/api/projectmanagement/create", data)
             showNotificationWithIcon('success', 'Tạo dự án', 'Khởi tạo dự án thành công')
-            dispatch({
-                type: HIDE_LOADING
-            })
         }catch(errors) {
-            showNotificationWithIcon('error', 'Tạo dự án', 'Khởi tạo dự án thất bại')
+            showNotificationWithIcon('error', 'Tạo dự án', errors.response.data.message)
+        }
+        dispatch({
+            type: HIDE_LOADING
+        })
+    }
+}
+
+export const deleteUserInProject = (userId, projectId) => {
+    return async dispatch => {
+        try {
+            await Axios.put(`https://jira.dev/api/projectmanagement/delete/user/${projectId}`, {userId})
+            showNotificationWithIcon('success', 'Xóa người dùng', 'Xóa thành công người dùng khỏi dự án')
+        }catch(errors) {
+            showNotificationWithIcon('error', 'Xóa người dùng', errors.response.data.message)
         }
     }
 }

@@ -10,7 +10,7 @@ router.put('/update/:id', async (req, res) => {
 
     if (!currentProject) {
         return res.status(400).json({
-            message: "Khong tim thay project"
+            message: "Project not found"
         })
     } else {
         const updatedProject = await projectModel.updateOne(
@@ -19,7 +19,7 @@ router.put('/update/:id', async (req, res) => {
         )
 
         res.status(200).json({
-            message: "Cap nhat thanh cong project",
+            message: "Successfully updated project",
             data: updatedProject
         })
     }

@@ -30,9 +30,9 @@ export const updateItemCategory = (props) => {
 
             dispatch(ListProjectAction())
             dispatch(drawerAction(true))
-            showNotificationWithIcon('success', 'Update project', 'Successfully updated this project')
+            showNotificationWithIcon('success', 'Cập nhật dự án', 'Cập nhật thành công dự án')
         } catch (error) {
-            console.log("Error at `https://jira.dev/api/projectmanagement/update/ ", error);
+
         }
     }
 }
@@ -42,10 +42,9 @@ export const deleteItemCategory = (id) => {
             await Axios.delete(`https://jira.dev/api/projectmanagement/delete/${id}`)
 
             dispatch(ListProjectAction())
-            showNotificationWithIcon('success', 'Delete project', 'Successfully deleted this project')
+            showNotificationWithIcon('success', 'Xóa dự án', 'Xóa thành công dự án')
         } catch (error) {
-            showNotificationWithIcon('error', 'Delete project', 'delete failed project')
-            console.log("Error at http://localhost:4000/api/list/category/delete ", error);
+            showNotificationWithIcon('error', 'Xóa dự án', 'Xóa dự án thất bại, vui lòng thử lại')
         }
     }
 }

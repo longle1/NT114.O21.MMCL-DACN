@@ -10,7 +10,7 @@ export const UserLoginTemplate = ({ Component }) => {
         dispatch(userLoggedInAction())
     }, [])
     return <>
-        <Layout style={{ backgroundColor: 'lightgreen' }}>
+        <Layout style={{ backgroundColor: 'lightgreen'}}>
             <Sider style={{ height: window.innerHeight }} width="60%">
                 <img style={{ objectFit: 'cover', width: '100%', height: '100%' }} alt='image for login page' src="https://img.freepik.com/premium-vector/network-connection-background-abstract-style_23-2148875738.jpg" />
             </Sider>

@@ -8,17 +8,19 @@ const router = express.Router()
 router.post('/create', currentUserMiddleware, async (req, res, next) => {
     try {
         const { nameProject, description, category, creator } = req.body;
-        console.log("req.body", category);
         const existedProject = await projectModel.findOne({ nameProject })
         //neu project chua ton tai
         if (existedProject) {
             throw new BadRequestError("Project already existed")
         } else {
+            let members = []
+            members.push(creator)
             const project = await projectModel.create({
                 nameProject,
                 description,
                 category,
-                creator
+                creator,
+                members
             })
             res.status(201).json({
                 message: "Initial success project",

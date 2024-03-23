@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { SearchOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Table, Popconfirm, Avatar, Popover, AutoComplete, Tag } from 'antd';
-import Highlighter from 'react-highlight-words';
+import { Button, Table, Popconfirm, Avatar, Popover, AutoComplete, Tag } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetProjectAction, ListProjectAction } from '../../redux/actions/ListProjectAction';
@@ -9,15 +7,18 @@ import { drawer_edit_form_action } from '../../redux/actions/DrawerAction';
 import FormEdit from '../Forms/FormEdit';
 import { deleteItemCategory, getItemCategory } from '../../redux/actions/EditCategoryAction';
 import { getUserKeyword, insertUserIntoProject } from '../../redux/actions/UserAction';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { showNotificationWithIcon } from '../../util/NotificationUtil';
+import { deleteUserInProject } from '../../redux/actions/CreateProjectAction';
 export default function ProjectManager() {
 
     const dispatch = useDispatch()
     const listProject = useSelector(state => state.listProject.listProject)
     const listUser = useSelector(state => state.user.list)
+    const navigate = useNavigate()
     useEffect(() => {
         dispatch(ListProjectAction())
+        navigate('/manager')
     }, [])
 
     const [value, setValue] = useState('')
@@ -29,112 +30,38 @@ export default function ProjectManager() {
     const search = useRef(null)
 
 
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
-    const searchInput = useRef(null);
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
-        confirm();
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-    };
-    const handleReset = (clearFilters) => {
-        clearFilters();
-        setSearchText('');
-    };
-    const getColumnSearchProps = (dataIndex) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-            <div
-                style={{
-                    padding: 8,
-                }}
-                onKeyDown={(e) => e.stopPropagation()}
-            >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Search
-                    </Button>
-                    <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Reset
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered) => (
-            <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
-            />
-        ),
-        onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-        onFilterDropdownOpenChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
+
+    //su dung cho truong hien thi member
+    const memberColumns = [
+        {
+            title: 'Avatar',
+            dataIndex: 'avatar',
+            key: 'avatar',
+            render: (text, record, index) => {
+                return <Avatar src={text} size={30} alt={index} />
             }
         },
-        render: (text) =>
-            searchedColumn === dataIndex ? (
-                <Highlighter
-                    highlightStyle={{
-                        backgroundColor: '#ffc069',
-                        padding: 0,
-                    }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                />
-            ) : (
-                text
-            ),
-    });
+        {
+            title: 'Username',
+            dataIndex: 'username',
+            key: 'username',
+            render: (text, record, index) => {
+                return <span>{text}</span>
+            }
+        },
+        {
+            title: 'Delete',
+            key: 'delete',
+            dataIndex: '_id',
+            render: (text, record, index) => {
+                return <Button type="primary" onClick={ async () => {
+                    await dispatch(deleteUserInProject(text, record.projectId))
+
+                    dispatch(ListProjectAction())
+                }} icon={<DeleteOutlined />} size='large' />
+            }
+        }
+    ];
     const columns = [
         {
             title: 'ID',
@@ -148,7 +75,7 @@ export default function ProjectManager() {
             render: (text, record, index) => {
                 if (record.creator._id === userInfo.id || record.members.findIndex(user => user._id === userInfo.id) !== -1) {
                     return <NavLink to={`/projectDetail/${record._id}`} onClick={() => {
-                        dispatch(GetProjectAction(record._id))
+                        dispatch(GetProjectAction(record._id, ""))
                     }} style={{ textDecoration: 'none' }}>
                         <span>{record.nameProject}</span>
                     </NavLink>
@@ -186,8 +113,19 @@ export default function ProjectManager() {
                             {
                                 record.members?.slice(0, 3).map((user, index) => {
                                     return <Popover content={() => {
-                                        console.log("Hello world");
-                                    }} title="Title">
+                                        const pos = record?.members.findIndex(user => user._id === record.creator._id)
+                                        if (pos !== -1) {
+                                            record?.members.splice(pos, 1)
+                                        }
+                                        //chèn id của project vào từng giá trị
+
+                                        const newMembers = record?.members.map(value => {
+                                            return {...value, projectId: record._id}
+                                        })
+                                        console.log();
+
+                                        return <Table columns={memberColumns} rowKey={index} dataSource={newMembers} />
+                                    }} title="Members">
                                         <Avatar key={index} src={<img src={user.avatar} alt="avatar" />} />
                                     </Popover>
                                 })
