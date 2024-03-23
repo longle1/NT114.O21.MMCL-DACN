@@ -1,7 +1,6 @@
 import Axios from "axios"
-import { DISPLAY_LOADING, GET_LIST_PROJECT_API, GET_PROJECT_API, HIDE_LOADING } from "../constants/constant"
+import { GET_LIST_PROJECT_API, GET_PROJECT_API } from "../constants/constant"
 import { delay } from "../../util/Delay"
-import { showNotificationWithIcon } from "../../util/NotificationUtil"
 
 export const ListProjectAction = () => {
     return async dispatch => {
@@ -17,13 +16,12 @@ export const ListProjectAction = () => {
     }
 }
 
-export const GetProjectAction = (id) => {
+export const GetProjectAction = (id, keyword) => {
     return async dispatch => {
         try {
-            dispatch({
-                type: DISPLAY_LOADING
-            })
-            const res = await Axios.get(`https://jira.dev/api/projectmanagement/${id}`)
+            console.log("đã vào trong nay, ", `https://jira.dev/api/projectmanagement/${id.toString()}?keyword=${keyword}`);
+            const res = await Axios.get(`https://jira.dev/api/projectmanagement/${id.toString()}?keyword=${keyword}`)
+            console.log(res);
             dispatch({
                 type: GET_PROJECT_API,
                 data: res.data.data
@@ -31,10 +29,7 @@ export const GetProjectAction = (id) => {
             await delay(1000)
             localStorage.setItem('projectid', id)
         } catch (errors) {
-            localStorage.setItem('projectid', null)
+            localStorage.setItem('projectid', 1)
         }
-        dispatch({
-            type: HIDE_LOADING
-        })
     }
 }

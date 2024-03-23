@@ -6,6 +6,7 @@ const cookieSession = require("cookie-session")
 const cors = require('cors')
 const errorHandler = require("./Middlewares/Error-handler")
 const natsWrapper = require("./nats-wrapper")
+const commentDeletedListener = require("./nats/comment-deleted-listeners")
 
 const app = express()
 
@@ -30,6 +31,8 @@ async function connectToNats() {
             console.log('NATs connection closed');
             process.exit()
         })
+
+        commentDeletedListener()
 
         process.on('SIGINT', () => { natsWrapper.client.close() })
         process.on('SIGTERM', () => { natsWrapper.client.close() })

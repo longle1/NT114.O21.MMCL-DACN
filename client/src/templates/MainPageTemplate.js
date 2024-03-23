@@ -13,26 +13,29 @@ import { userLoggedInAction } from '../redux/actions/UserAction'
 import { GetProjectAction } from '../redux/actions/ListProjectAction'
 export default function MainPageTemplate({ Component }) {
     const status = useSelector(state => state.user.status)
+    const isLoading = useSelector(state => state.loading.isLoading)
     const dispatch = useDispatch()
     useEffect(() => {
         dispatch(userLoggedInAction())
-        console.log("localStorage.getItem('projectid')", localStorage.getItem('projectid'), localStorage.getItem('projectid') !== 'null');
         //lay ra project hien tai
-        if(localStorage.getItem('projectid') !== 'null') {
-            dispatch(GetProjectAction(localStorage.getItem('projectid')))
+        console.log("typeof ", typeof localStorage.getItem('projectid'));
+        if (typeof localStorage.getItem('projectid') === 'string' && localStorage.getItem('projectid').length >= 5) {
+            dispatch(GetProjectAction(localStorage.getItem('projectid'), ""))
         }
     }, [])
     return (
-        status ? (
-            <div className='d-flex'>
-                <DrawerHOC />
-                <SideBar />
-                <MenuBar />
-                <div style={{ width: '100%' }} className='main'>
-                    <Component />
+        !isLoading ? (
+            status ? (
+                <div className='d-flex'>
+                    <DrawerHOC />
+                    <SideBar />
+                    <MenuBar />
+                    <div style={{ width: '100%' }} className='main'>
+                        <Component />
+                    </div>
+                    <InfoModal />
                 </div>
-                <InfoModal />
-            </div>
-        ) : (<Navigate to="/login" />)
+            ) : <Navigate to="/login" />
+        ) : <></>
     )
 }

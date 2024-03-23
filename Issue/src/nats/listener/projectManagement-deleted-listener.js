@@ -1,33 +1,34 @@
 const commentModel = require('../../models/commentModel')
 const issueModel = require('../../models/issueModel')
 const natsWrapper = require('../../nats-wrapper')
+const issuePublisher = require('../publisher/issue-publisher')
 
 const projectManagementDeletedListener = () => {
     const options = natsWrapper.client.subscriptionOptions()
         .setManualAckMode(true)
 
-    const subscription = natsWrapper.client.subscribe('projectManagament:deleted', options)
+    const subscription = natsWrapper.client.subscribe('projectmanagement:deleted', options)
 
     subscription.on('message', async (msg) => {
         if (typeof msg.getData() === 'string') {
-            console.log(`Received event projectManagament:deleted with sequence number: ${msg.getSequence()}`);
+            console.log(`Received event projectmanagement:deleted with sequence number: ${msg.getSequence()}`);
 
             const parseData = JSON.parse(msg.getData())
 
-            //tiến hành lưu vào comment db
-            const comment = await commentModel.deleteOne({ _id: parseData._id })
+            //lấy ra danh sách issue thuộc về project
+            const issueList = await issueModel.find({ _id: { $in: parseData } })
 
-            //tien hanh them comment ID nay vao IssueModel tuong ung
-            const currentIssue = await issueModel.findById(comment.issueId)
+            //tien hanh xoa cac comment trong cac issue nay
+            for (const issue of issueList) {
+                // await commentModel.deleteMany({ _id: { $in: issue.comments } })
 
-            if (currentIssue) {
-                listComments = currentIssue.comments
-                listComments.push(comment._id)
-
-                await issueModel.updateMany({ _id: comment.issueId }, { $set: { comments: listComments } })
-
+                await issuePublisher(issue.comments, 'issue-comment:deleted')
             }
 
+            //xoa cac issue thuoc project
+            const result = await issueModel.deleteMany({ _id: { $in: parseData } })
+
+            console.log("So issue da xoa: ", result);
             msg.ack()
         }
     })

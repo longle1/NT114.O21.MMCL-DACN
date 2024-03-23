@@ -29,6 +29,12 @@ userSchema.virtual('IssueRefAssignees', {
     foreignField: 'assignees'
 })
 
+userSchema.virtual('IssueRefCreator', {
+    ref: 'issues',
+    localField: '_id',
+    foreignField: 'creator'
+})
+
 const userModel = new mongoose.model('users', userSchema)
 
 module.exports = userModel

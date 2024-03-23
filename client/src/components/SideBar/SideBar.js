@@ -31,11 +31,11 @@ const SideBar = () => {
                         <div className="sidebar-brand">
                             <div className='slidebar-infoUser'>
                                 <img src={userInfo?.avatar} style={{ borderRadius: '50%' }} alt='avatar of user' />
-                                <div className='d-flex flex-column'>
-                                    <h4>
+                                <div className='d-flex flex-column ml-2 justify-content-center'>
+                                    <h4 className='m-0 text-light'>
                                         {userInfo?.username}
                                     </h4>
-                                    <h6>
+                                    <h6 className='m-0 text-light'>
                                         {userInfo?.email}
                                     </h6>
                                 </div>
@@ -71,19 +71,7 @@ const SideBar = () => {
                         </div>
                     </div>
                     <div className="sidebar-footer">
-                        <NavLink href="#">
-                            <i className="fa fa-bell" />
-                            <span className="badge badge-pill badge-warning notification">3</span>
-                        </NavLink>
-                        <NavLink href="#">
-                            <i className="fa fa-envelope" />
-                            <span className="badge badge-pill badge-success notification">7</span>
-                        </NavLink>
-                        <NavLink href="#">
-                            <i className="fa fa-cog" />
-                            <span className="badge-sonar" />
-                        </NavLink>
-                        <NavLink href="#" onClick={() => {
+                        <NavLink href="#" style={{width: '100%', backgroundColor: 'lightskyblue'}} onClick={() => {
                             dispatch(userLoggedoutAction())
                         }}>
                             <i className="fa fa-power-off" />
