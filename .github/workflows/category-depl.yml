@@ -1,18 +1,16 @@
-name: deploy-auth
+name: category-depl
 on:
-  push:
+  push: 
     branches:
-      - main
-    paths:
-      - "auth/**"
+      - "category/**"
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: cd auth && docker build -t longle2003/auth .
+      - run: cd category && docker build -t longle2003/category .
       - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker push longle2003/auth
+      - run: docker push longle2003/category
