@@ -14,10 +14,6 @@ const issueSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    positionList: {
-        type: Number,
-        default: null
-    },
     issueType: {
         type: Number,
         default: null

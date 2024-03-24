@@ -29,8 +29,6 @@ export default function ProjectManager() {
     //su dung cho debounce search
     const search = useRef(null)
 
-
-
     //su dung cho truong hien thi member
     const memberColumns = [
         {
@@ -54,7 +52,7 @@ export default function ProjectManager() {
             key: 'delete',
             dataIndex: '_id',
             render: (text, record, index) => {
-                return <Button type="primary" onClick={ async () => {
+                return <Button type="primary" onClick={async () => {
                     await dispatch(deleteUserInProject(text, record.projectId))
 
                     dispatch(ListProjectAction())
@@ -75,6 +73,7 @@ export default function ProjectManager() {
             render: (text, record, index) => {
                 if (record.creator._id === userInfo.id || record.members.findIndex(user => user._id === userInfo.id) !== -1) {
                     return <NavLink to={`/projectDetail/${record._id}`} onClick={() => {
+                        console.log(`/projectDetail/${record._id}`);
                         dispatch(GetProjectAction(record._id, ""))
                     }} style={{ textDecoration: 'none' }}>
                         <span>{record.nameProject}</span>
@@ -118,12 +117,9 @@ export default function ProjectManager() {
                                             record?.members.splice(pos, 1)
                                         }
                                         //chèn id của project vào từng giá trị
-
                                         const newMembers = record?.members.map(value => {
-                                            return {...value, projectId: record._id}
+                                            return { ...value, projectId: record._id }
                                         })
-                                        console.log();
-
                                         return <Table columns={memberColumns} rowKey={index} dataSource={newMembers} />
                                     }} title="Members">
                                         <Avatar key={index} src={<img src={user.avatar} alt="avatar" />} />
