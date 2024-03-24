@@ -50,9 +50,9 @@ async function connectToNats() {
         issueDeletedCreator()
         projectManagementDeletedListener()
 
-        console.log("Ket noi thanh cong toi nats");
+        console.log("Successfully connected to nats");
     } catch (error) {
-        console.log("Kết nối thất bại tới nats", error);
+        console.log("Failed connection to nats", error);
     }
 }
 
@@ -61,9 +61,9 @@ async function connectToMongoDb() {
     try {
         await mongoose.connect(process.env.MONGO_URL) 
 
-        console.log("Ket noi thanh cong database");
+        console.log("Successfully connected to database");
     } catch (error) {
-        console.log("Kết nối thất bại tới database");
+        console.log("Failed connection to database");
     }
 }
 
