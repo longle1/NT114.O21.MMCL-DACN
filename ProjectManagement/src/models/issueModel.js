@@ -22,7 +22,7 @@ const issueSchema = new mongoose.Schema({
         type: Number,
         default: null
     },
-    assignees: [
+    assignees: [    
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'users'

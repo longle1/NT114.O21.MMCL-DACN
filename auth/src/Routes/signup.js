@@ -8,7 +8,12 @@ const authPublisher = require("../nats/auth-published")
 router.post("/signup", async (req, res, next) => {
     try {
         const { username, email, password } = req.body
-        const existedUser = await userModel.findOne({ email })
+        const existedUser = await userModel.findOne({
+            $or: [
+                { email },
+                { username }
+            ]
+        })
 
 
         //kiem tra xem user da ton tai hay chua

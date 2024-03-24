@@ -14,11 +14,11 @@ export const createCommentAction = (props) => {
             await dispatch(getInfoIssue(props.issueId))
 
             if (status === 201) {
-                showNotificationWithIcon('success', 'Tạo bình luận', 'Tạo thành công 1 bình luận')
+                showNotificationWithIcon('success', '', result.message)
             }
         } catch (error) {
             if (error.response.status === 401) {
-                showNotificationWithIcon('error', 'Tạo bình luận', 'Bạn cần đăng nhập trước khi bình luận')
+                showNotificationWithIcon('error', '', 'Please sign in before posting comment')
                 dispatch({
                     type: USER_LOGGED_IN,
                     status: false,

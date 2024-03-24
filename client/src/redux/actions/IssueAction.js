@@ -1,6 +1,6 @@
 import Axios from "axios"
 import { showNotificationWithIcon } from "../../util/NotificationUtil"
-import { GET_INFO_ISSUE } from "../constants/constant"
+import { GET_INFO_ISSUE, USER_LOGGED_IN } from "../constants/constant"
 import { GetProjectAction } from "./ListProjectAction"
 
 export const createIssue = (props) => {
@@ -13,9 +13,20 @@ export const createIssue = (props) => {
 
             //cap nhat lai thong tin ve project
             dispatch(GetProjectAction(props.projectId, ""))
-            showNotificationWithIcon('success', 'Tạo mới', 'Tạo thành công vấn đề')
+            showNotificationWithIcon('success', '', 'Successfully create issue')
         } catch (error) {
-            showNotificationWithIcon('error', 'Tạo mới', 'Tạo mới thất bại')
+            console.log(error);
+            if (error.response.status === 401) {
+                showNotificationWithIcon('error', '', 'Please sign in before posting comment')
+                dispatch({
+                    type: USER_LOGGED_IN,
+                    status: false,
+                    userInfo: null
+                })
+                window.location.reload();
+            }else {
+                showNotificationWithIcon('error', '', 'Failed creation issue')
+            }
         }
     }
 }
@@ -46,11 +57,21 @@ export const updateInfoIssue = (issueId, projectId, props) => {
             //cap nhat lai danh sach project
             dispatch(GetProjectAction(projectId, ""))
 
-            showNotificationWithIcon("success", "Cập nhật", "Cập nhật vấn đề thành công")
+            showNotificationWithIcon("success", "Cập nhật", "Successfully updated issue")
 
 
         } catch (error) {
-            console.log("error in updateInfoIssue action", error);
+            if (error.response.status === 401) {
+                showNotificationWithIcon('error', '', 'Please sign in before posting comment')
+                dispatch({
+                    type: USER_LOGGED_IN,
+                    status: false,
+                    userInfo: null
+                })
+                window.location.reload();
+            }else {
+                showNotificationWithIcon('error', '', 'Update failed issue')
+            }
         }
     }
 }
@@ -65,11 +86,21 @@ export const deleteAssignee = (issueId, projectId, userId) => {
             //cap nhat lai danh sach project
             dispatch(GetProjectAction(projectId, ""))
 
-            showNotificationWithIcon("success", "Xóa", "Xóa thành công người dùng khỏi dự án")
+            showNotificationWithIcon("success", "", "Successfully deleted user from this issue")
 
 
         } catch (error) {
-            console.log("error in deleteAssignee action", error);
+            if (error.response.status === 401) {
+                showNotificationWithIcon('error', '', 'Please sign in before posting comment')
+                dispatch({
+                    type: USER_LOGGED_IN,
+                    status: false,
+                    userInfo: null
+                })
+                window.location.reload();
+            }else {
+                showNotificationWithIcon('error', '', 'delete failed user from this issue')
+            }
         }
     }
 }
@@ -81,11 +112,21 @@ export const deleteIssue = (issueId) => {
             //lấy ra danh sách issue sau khi thay đổi
             dispatch(getInfoIssue(issueId))
 
-            showNotificationWithIcon("success", "Delete", "Successfully deleted this issue")
+            showNotificationWithIcon("success", "", "Successfully deleted this issue")
 
 
         } catch (error) {
-            console.log("error in deleteAssignee action", error);
+            if (error.response.status === 401) {
+                showNotificationWithIcon('error', '', 'Please sign in before posting comment')
+                dispatch({
+                    type: USER_LOGGED_IN,
+                    status: false,
+                    userInfo: null
+                })
+                window.location.reload();
+            }else {
+                showNotificationWithIcon('error', '', 'failed deletion this issue')
+            }
         }
     }
 }

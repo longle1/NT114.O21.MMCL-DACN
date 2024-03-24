@@ -1,5 +1,5 @@
 import Axios from "axios"
-import { DISPLAY_LOADING, HIDE_LOADING } from "../constants/constant"
+import { DISPLAY_LOADING, HIDE_LOADING, USER_LOGGED_IN } from "../constants/constant"
 import { delay } from "../../util/Delay"
 import { showNotificationWithIcon } from "../../util/NotificationUtil"
 
@@ -11,10 +11,18 @@ export const createProjectAction = (data) => {
             })
 
             await delay(2000)
-            await Axios.post("https://jira.dev/api/projectmanagement/create", data)
-            showNotificationWithIcon('success', 'Tạo dự án', 'Khởi tạo dự án thành công')
-        }catch(errors) {
-            showNotificationWithIcon('error', 'Tạo dự án', errors.response.data.message)
+            const {data: result, status} = await Axios.post("https://jira.dev/api/projectmanagement/create", data)
+            showNotificationWithIcon('success', '', result.message)
+        }catch(error) {
+            if (error.response.status === 401) {
+                showNotificationWithIcon('error', '', 'Please sign in before posting comment')
+                await dispatch({
+                    type: USER_LOGGED_IN,
+                    status: false,
+                    userInfo: null
+                })
+                window.location.reload();
+            }
         }
         dispatch({
             type: HIDE_LOADING
