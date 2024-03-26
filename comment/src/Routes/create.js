@@ -9,13 +9,13 @@ const router = express.Router()
 router.post("/create", currentUserMiddleware, async (req, res, next) => {
     try {
         if(!req.currentUser) {
-            throw new UnauthorizedError("Xac thuc that bai")
+            throw new UnauthorizedError("Failed authentication")
         }
         const result = await commentModel.create(req.body);
         //public toi issue service
-        commentPublisher(result, "comment:created")
+        await commentPublisher(result, "comment:created")
         res.status(201).json({
-            message: "tao thanh cong comment",
+            message: "Successfully created comment",
             data: result
         })
     } catch (error) {

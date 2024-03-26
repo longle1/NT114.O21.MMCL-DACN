@@ -14,10 +14,6 @@ const issueSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    positionList: {
-        type: Number,
-        default: null
-    },
     issueType: {
         type: Number,
         default: null
@@ -26,7 +22,7 @@ const issueSchema = new mongoose.Schema({
         type: Number,
         default: null
     },
-    assignees: [
+    assignees: [    
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'users'

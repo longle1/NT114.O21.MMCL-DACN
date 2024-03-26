@@ -25,14 +25,13 @@ export default function Dashboard() {
     const search = useRef(null)
 
     useEffect(() => {
-        if (projectInfo === null || localStorage.getItem('projectid') === "1") {
+        if(typeof localStorage.getItem('projectid') === 'string' && localStorage.getItem('projectid').length >= 8) {
+            localStorage.setItem('projectid', projectInfo?._id)
+        }else {
             localStorage.setItem('projectid', null)
             showNotificationWithIcon('error', 'Vui lòng tham gia vào dự án trước')
             navigate('/manager')
-        } else {
-            //set localstorage để khi user vào web thì sẽ vào thẳng dự án hiện tại
-            localStorage.setItem('projectid', projectInfo?._id)
-        }
+        } 
     }, [])
 
     //su dung cho truong hien thi member

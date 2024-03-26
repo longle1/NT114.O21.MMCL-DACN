@@ -1,5 +1,5 @@
 import { Avatar, Button, Input, InputNumber, Popconfirm, Select } from 'antd';
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Editor } from '@tinymce/tinymce-react';
 import Parser from 'html-react-parser';
@@ -28,6 +28,8 @@ export default function InfoModal() {
         content: '',
         isSubmit: true,
     })
+    //su dung cho debounce time original
+    const inputTimeOriginal = useRef(null)
 
 
     const issueStatus = [
@@ -410,7 +412,15 @@ export default function InfoModal() {
                                 </div>
                                 <div className="estimate">
                                     <h6>ORIGINAL ESTIMATE (HOURS)</h6>
-                                    <input type="number" className="estimate-hours" disabled={issueInfo?.creator._id !== userInfo.id} value={issueInfo?.timeOriginalEstimate} />
+                                    <input type="number" className="estimate-hours" onChange={(e) => {
+                                        //kiem tra gia tri co khac null khong, khac thi xoa
+                                        if (inputTimeOriginal.current) {
+                                            clearTimeout(inputTimeOriginal.current)
+                                        }
+                                        inputTimeOriginal.current = setTimeout(() => {
+                                            dispatch(updateInfoIssue(issueInfo?._id, projectInfo?._id, {timeOriginalEstimate: e.target.value}))
+                                        }, 500)
+                                    }} disabled={issueInfo?.creator._id !== userInfo.id} defaultValue="" value={issueInfo?.timeOriginalEstimate} />
                                 </div>
                                 <div className="time-tracking">
                                     <h6>TIME TRACKING</h6>

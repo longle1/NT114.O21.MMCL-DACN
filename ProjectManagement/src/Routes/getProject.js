@@ -1,8 +1,9 @@
 const express = require('express')
 const projectModel = require('../models/projectModel')
+const BadRequestError = require('../Errors/Bad-Request-Error')
 const router = express.Router()
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res, next) => {
     try {
         const id = req.params.id
         let keyword = req.query.keyword
@@ -38,9 +39,7 @@ router.get('/:id', async (req, res) => {
         currentProject.issues = filteredIssues
         console.log("currentProject", currentProject);
         if (!currentProject) {
-            res.status(400).json({
-                message: "Project khong ton tai"
-            })
+            throw new BadRequestError("Project not found")
         } else {
             res.status(200).json({
                 message: "Lay thanh cong project",
@@ -48,7 +47,7 @@ router.get('/:id', async (req, res) => {
             })
         }
     } catch (error) {
-
+        next(error)
     }
 })
 

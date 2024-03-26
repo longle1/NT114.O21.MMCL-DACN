@@ -25,7 +25,6 @@ export const insertUserIntoProject = (props) => {
             showNotificationWithIcon('success', 'Insert user', 'Successfully inserted in this project')
         } catch (error) {
             showNotificationWithIcon('error', 'Insert user', 'User already in this project')
-            console.log(error);
         }
     }
 }
