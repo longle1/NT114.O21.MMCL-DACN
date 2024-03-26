@@ -2,6 +2,8 @@ name: category-depl
 on:
   push: 
     branches:
+      - main
+    paths:
       - "category/**"
 jobs:
   build:

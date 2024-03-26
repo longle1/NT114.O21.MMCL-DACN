@@ -2,6 +2,8 @@ name: projectmanagement-depl
 on:
   push: 
     branches:
+      - main
+    paths:
       - "projectmanagement/**"
 jobs:
   build:
